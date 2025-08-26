@@ -1,34 +1,27 @@
-import React, { useState } from 'react';
-import { Card, Button, Form, Input, InputNumber, Row, Col, Upload, Space, message, Select } from 'antd';
 import {
-    SaveOutlined,
-    DeleteOutlined,
     CopyOutlined,
-    UploadOutlined,
-    CloseOutlined,
-    PlusOutlined
+    DeleteOutlined,
+    PlusOutlined,
+    SaveOutlined,
+    UploadOutlined
 } from '@ant-design/icons';
-import ImageWithFallback from '../../components/Common/ImageWithFallback';
-import { uploadService } from '../../services';
-import { AttributeFieldType, ATTRIBUTE_FIELD_TYPES } from '../../constants/attributeConfigs';
-import { renderAttributeField } from '../../utils/attributeFieldRenderer';
 import {
-    DndContext,
     closestCenter,
+    DndContext,
     KeyboardSensor,
     PointerSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
+    verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import AttributeList from '../../components/Products/AttributeList';
-import AttributeGroupItem from '../../components/Products/AttributeGroupItem';
-import SortableGroupItem from '../../components/Products/SortableGroupItem';
+import { Button, Card, Col, Form, Input, InputNumber, message, Row, Space, Upload } from 'antd';
+import React, { useState } from 'react';
+import SortableGroupItem from './SortableGroupItem';
+import { uploadService } from '../../services';
 
 const { TextArea } = Input;
 

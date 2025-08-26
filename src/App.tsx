@@ -8,7 +8,6 @@ import ProductTypes from './pages/ProductTypes/ProductTypes';
 import ProductBrands from './pages/ProductBrands/ProductBrands';
 import Suppliers from './pages/Suppliers/Suppliers';
 import Products from './pages/Products/Products';
-import ProductForm from './pages/Products/ProductForm';
 import ProductFormTabs from './pages/Products/ProductFormTabs';
 import ProductDetail from './pages/Products/ProductDetail';
 
@@ -114,37 +113,19 @@ function App() {
           element={
             <ProtectedRoute>
               <MainLayout>
-                <ProductForm />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/products/add-tabs"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
                 <ProductFormTabs />
               </MainLayout>
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/products/:id"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <ProductDetail />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+
+
         <Route
           path="/products/edit/:id"
           element={
             <ProtectedRoute>
               <MainLayout>
-                <ProductForm />
+                <ProductDetail />
               </MainLayout>
             </ProtectedRoute>
           }

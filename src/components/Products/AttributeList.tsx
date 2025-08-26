@@ -1,9 +1,7 @@
-import React from 'react';
-import { Form, Input, Button } from 'antd';
 import { DeleteOutlined, MenuOutlined } from '@ant-design/icons';
 import {
-    DndContext,
     closestCenter,
+    DndContext,
     KeyboardSensor,
     PointerSensor,
     useSensor,
@@ -13,13 +11,13 @@ import {
     arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
+    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-    useSortable,
-} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { AttributeFieldType, ATTRIBUTE_FIELD_TYPES } from '../../constants/attributeConfigs';
+import { Button, Form, Input } from 'antd';
+import React from 'react';
+import { ATTRIBUTE_FIELD_TYPES, AttributeFieldType } from '../../constants/attributeConfigs';
 import { renderAttributeField } from '../../utils/attributeFieldRenderer';
 
 interface AttributeListProps {

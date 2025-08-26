@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Typography, message, Tabs, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { productService } from '../../services';
-import BasicDetailsTab from './BasicDetailsTab';
-import VariantsTab from './VariantsTab';
+import BasicDetailsTab from '../../components/Products/BasicDetailsTab';
+import VariantsTab from '../../components/Products/VariantsTab';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;

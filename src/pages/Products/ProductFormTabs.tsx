@@ -5,7 +5,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import {
     productService
 } from '../../services';
-import BasicDetailsTab from './BasicDetailsTab';
+import BasicDetailsTab from '../../components/Products/BasicDetailsTab';
 
 const { Title } = Typography;
 

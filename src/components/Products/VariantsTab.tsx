@@ -138,17 +138,6 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
         message.success('Variant cloned successfully');
     };
 
-
-
-    // Handle attribute groups change for variants
-    const handleAttributeGroupsChange = (variantIndex: number, groups: any[]) => {
-        const updatedVariants = [...variants];
-        updatedVariants[variantIndex] = {
-            ...updatedVariants[variantIndex],
-            attributeGroups: groups
-        };
-        onVariantsChange(updatedVariants);
-    };
     return (
         <div className="space-y-6">
             {!productSaved ? (

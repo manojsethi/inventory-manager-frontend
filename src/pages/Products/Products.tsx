@@ -1,30 +1,28 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-    Table,
-    Card,
+    DeleteOutlined,
+    EditOutlined,
+    ExclamationCircleOutlined,
+    PlusOutlined,
+    SearchOutlined,
+} from '@ant-design/icons';
+import {
     Button,
+    Card,
+    Col,
     Input,
-    Space,
-    Tag,
-    Typography,
     message,
     Popconfirm,
     Row,
-    Col,
     Select,
+    Space,
+    Table,
+    Tag,
+    Typography,
 } from 'antd';
-import {
-    PlusOutlined,
-    SearchOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    ExclamationCircleOutlined,
-} from '@ant-design/icons';
-import { productService, type Product } from '../../services';
-import { productTypeService, type ProductType } from '../../services';
-import { productBrandService, type ProductBrand } from '../../services';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
+import { productBrandService, productService, productTypeService, type Product, type ProductBrand, type ProductType } from '../../services';
 
 const { Title } = Typography;
 const { Option } = Select;
