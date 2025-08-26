@@ -182,11 +182,6 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
                                     onSave={handleVariantSave}
                                     onDelete={handleVariantDelete}
                                     onClone={handleVariantClone}
-                                    onVariantChange={(variantIndex, updatedVariant) => {
-                                        const updatedVariants = [...variants];
-                                        updatedVariants[variantIndex] = updatedVariant;
-                                        onVariantsChange(updatedVariants);
-                                    }}
                                     isProcessing={processingVariant === index}
                                     isUnsaved={!variant.sku}
                                 />

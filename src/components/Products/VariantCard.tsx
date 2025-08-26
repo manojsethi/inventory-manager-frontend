@@ -31,7 +31,6 @@ interface VariantCardProps {
     onSave: (variantData: any, variantIndex: number) => Promise<void>;
     onDelete: (variantId: string) => Promise<void>;
     onClone: (variantId: string) => void;
-    onVariantChange: (variantIndex: number, updatedVariant: any) => void;
     isProcessing?: boolean;
     isUnsaved?: boolean;
 }
@@ -42,7 +41,6 @@ const VariantCard: React.FC<VariantCardProps> = ({
     onSave,
     onDelete,
     onClone,
-    onVariantChange,
     isProcessing = false,
     isUnsaved = false
 }) => {
@@ -50,8 +48,22 @@ const VariantCard: React.FC<VariantCardProps> = ({
     const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
-    const [selectedAttributeTypes, setSelectedAttributeTypes] = useState<Record<string, string>>({});
     const [expandedGroup, setExpandedGroup] = useState<any>(null);
+    const [images, setImages] = useState<string[]>(variant.images || []);
+
+    // Initialize form with variant data (excluding images)
+    React.useEffect(() => {
+        if (variant) {
+            form.setFieldsValue({
+                name: variant.name || '',
+                price: variant.price || 0,
+                costPrice: variant.costPrice || 0,
+                description: variant.description || '',
+                attributeGroups: variant.attributeGroups || []
+            });
+            setImages(variant.images || []);
+        }
+    }, [variant, form]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -65,8 +77,15 @@ const VariantCard: React.FC<VariantCardProps> = ({
     const handleSave = async () => {
         try {
             setSaving(true);
-            const values = await form.validateFields();
-            await onSave(values, variantIndex);
+            const formValues = await form.validateFields();
+
+            // Combine form values with images from state
+            const completeVariantData = {
+                ...formValues,
+                images: images
+            };
+
+            await onSave(completeVariantData, variantIndex);
         } catch (error) {
             message.error('Failed to save variant');
         } finally {
@@ -94,11 +113,10 @@ const VariantCard: React.FC<VariantCardProps> = ({
         try {
             setUploading(true);
 
-            const currentImages = variant.images || [];
             const fileArray = Array.isArray(files) ? files : [files];
 
             // Check if adding these images would exceed the 5-image limit
-            if (currentImages.length + fileArray.length > 5) {
+            if (images.length + fileArray.length > 5) {
                 message.error('Maximum 5 images allowed per variant');
                 return false;
             }
@@ -109,12 +127,8 @@ const VariantCard: React.FC<VariantCardProps> = ({
             // Ensure we don't have duplicate URLs
             const uniqueImageUrls = imageUrls.filter((url, index, self) => self.indexOf(url) === index);
 
-            // Update the variant with new images
-            const updatedVariant = {
-                ...variant,
-                images: [...currentImages, ...uniqueImageUrls]
-            };
-            onVariantChange(variantIndex, updatedVariant);
+            // Update state with new images
+            setImages(prevImages => [...prevImages, ...uniqueImageUrls]);
 
             return false; // Prevent default upload behavior
         } catch (error) {
@@ -127,14 +141,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
 
     // Handle image removal for this variant
     const handleImageRemove = (imageIndex: number) => {
-        const currentImages = variant.images || [];
-        const updatedImages = currentImages.filter((_: string, index: number) => index !== imageIndex);
-
-        const updatedVariant = {
-            ...variant,
-            images: updatedImages
-        };
-        onVariantChange(variantIndex, updatedVariant);
+        setImages(prevImages => prevImages.filter((_, index) => index !== imageIndex));
     };
 
     return (
@@ -231,7 +238,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                 </Form.Item>
 
                 {/* Images Section */}
-                <div className="border border-gray-200 rounded-lg p-4 mb-4">
+                <div className="border border-gray-200 rounded-lg mb-4">
                     <div className="mb-4">
                         <span className="font-semibold">Images</span>
                     </div>
@@ -248,12 +255,12 @@ const VariantCard: React.FC<VariantCardProps> = ({
                                 }
                                 return false; // Prevent default upload behavior
                             }}
-                            fileList={variant.images?.map((url: string, index: number) => ({
+                            fileList={images.map((url: string, index: number) => ({
                                 uid: `-${index}`,
                                 name: `image-${index + 1}`,
                                 status: 'done',
                                 url: url
-                            })) || []}
+                            }))}
                             onRemove={(file) => {
                                 const index = parseInt(file.uid.replace('-', ''));
                                 handleImageRemove(index);
@@ -272,7 +279,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                 </div>
 
                 {/* Attributes Section */}
-                <div className="border border-gray-200 rounded-lg p-4 mb-4">
+                <div className="border border-gray-200 rounded-lg mb-4">
                     <div className="mb-4">
                         <span className="font-semibold">Attributes</span>
                     </div>
