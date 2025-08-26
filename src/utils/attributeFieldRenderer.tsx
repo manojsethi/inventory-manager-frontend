@@ -24,72 +24,62 @@ const { Option } = Select;
  * @param attribute - The attribute definition containing fieldType and other properties
  * @returns React component for the form field
  */
-export const renderAttributeField = (attribute: { fieldType: AttributeFieldType; displayName: string;[key: string]: any }, formPath?: (string | number)[]) => {
-    console.log('🎯 renderAttributeField called with:', {
-        fieldType: attribute.fieldType,
-        displayName: attribute.displayName,
-        formPath
-    });
-
-    if (!formPath) {
-        console.warn('🎯 renderAttributeField: No formPath provided!');
-        return null;
-    }
+export const renderAttributeField = (attribute: { fieldType: AttributeFieldType; displayName: string;[key: string]: any }, formPath: (string | number)[]) => {
     switch (attribute.fieldType) {
         case AttributeFieldType.TEXT:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Input placeholder={`Enter ${attribute.displayName}`} className="text-left" />
                 </Form.Item>
-            ) : <Input placeholder={`Enter ${attribute.displayName}`} className="text-left" />;
+            );
 
         case AttributeFieldType.TEXTAREA:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <TextArea rows={4} placeholder={`Enter ${attribute.displayName}`} className="text-left" />
                 </Form.Item>
-            ) : <TextArea rows={4} placeholder={`Enter ${attribute.displayName}`} className="text-left" />;
+            );
 
         case AttributeFieldType.NUMBER:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} className="text-left" />
                 </Form.Item>
-            ) : <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} className="text-left" />;
+            );
 
         case AttributeFieldType.BOOLEAN:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle valuePropName="checked">
                     <Checkbox>{attribute.displayName}</Checkbox>
                 </Form.Item>
-            ) : <Checkbox>{attribute.displayName}</Checkbox>;
+            );
 
 
 
         case AttributeFieldType.DATE:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <DatePicker style={{ width: '100%' }} placeholder={`Select ${attribute.displayName}`} className="text-left" />
                 </Form.Item>
-            ) : <DatePicker style={{ width: '100%' }} placeholder={`Select ${attribute.displayName}`} className="text-left" />;
+            );
 
         case AttributeFieldType.COLOR:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle getValueFromEvent={(color) => {
                     return color ? `#${color.toHex()}` : undefined;
                 }}>
                     <ColorPicker format="hex" />
                 </Form.Item>
-            ) : <ColorPicker format="hex" />;
+            );
 
         case AttributeFieldType.RANGE:
             return (
                 <Space className="text-left">
-                    <Form.Item name={formPath ? [...formPath, 'min'] : 'min'} noStyle>
+                    <Form.Item name={[...formPath, 'min']} noStyle>
                         <InputNumber placeholder="Min" style={{ width: '100%' }} className="text-left" />
                     </Form.Item>
                     <span>to</span>
-                    <Form.Item name={formPath ? [...formPath, 'max'] : 'max'} noStyle>
+                    <Form.Item name={[...formPath, 'max']} noStyle>
                         <InputNumber placeholder="Max" style={{ width: '100%' }} className="text-left" />
                     </Form.Item>
                 </Space>
@@ -102,7 +92,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2 text-left">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="cm">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="cm">
                                 <Select placeholder="Select unit" style={{ width: '100%' }} className="text-left">
                                     <Option value="mm">Millimeter (mm)</Option>
                                     <Option value="cm">Centimeter (cm)</Option>
@@ -115,12 +105,12 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                     </Row>
                     <Row gutter={8}>
                         <Col span={12}>
-                            <Form.Item name={formPath ? [...formPath, 'length'] : 'length'} noStyle>
+                            <Form.Item name={[...formPath, 'length']} noStyle>
                                 <InputNumber placeholder="Length" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name={formPath ? [...formPath, 'width'] : 'width'} noStyle>
+                            <Form.Item name={[...formPath, 'width']} noStyle>
                                 <InputNumber placeholder="Width" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
@@ -133,7 +123,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2 text-left">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="cm">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="cm">
                                 <Select placeholder="Select unit" style={{ width: '100%' }} className="text-left">
                                     <Option value="mm">Millimeter (mm)</Option>
                                     <Option value="cm">Centimeter (cm)</Option>
@@ -146,22 +136,22 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                     </Row>
                     <Row gutter={8}>
                         <Col span={6}>
-                            <Form.Item name={formPath ? [...formPath, 'length'] : 'length'} noStyle>
+                            <Form.Item name={[...formPath, 'length']} noStyle>
                                 <InputNumber placeholder="Length" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
                         <Col span={6}>
-                            <Form.Item name={formPath ? [...formPath, 'width'] : 'width'} noStyle>
+                            <Form.Item name={[...formPath, 'width']} noStyle>
                                 <InputNumber placeholder="Width" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
                         <Col span={6}>
-                            <Form.Item name={formPath ? [...formPath, 'height'] : 'height'} noStyle>
+                            <Form.Item name={[...formPath, 'height']} noStyle>
                                 <InputNumber placeholder="Height" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
                         <Col span={6}>
-                            <Form.Item name={formPath ? [...formPath, 'depth'] : 'depth'} noStyle>
+                            <Form.Item name={[...formPath, 'depth']} noStyle>
                                 <InputNumber placeholder="Depth" style={{ width: '100%' }} precision={2} className="text-left" />
                             </Form.Item>
                         </Col>
@@ -174,7 +164,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2 text-left">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="kg">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="kg">
                                 <Select placeholder="Select unit" style={{ width: '100%' }} className="text-left">
                                     <Option value="g">Gram (g)</Option>
                                     <Option value="kg">Kilogram (kg)</Option>
@@ -185,7 +175,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                             </Form.Item>
                         </Col>
                         <Col span={16}>
-                            <Form.Item name={formPath ? [...formPath, 'value'] : 'value'} noStyle>
+                            <Form.Item name={[...formPath, 'value']} noStyle>
                                 <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} precision={2} min={0} className="text-left" />
                             </Form.Item>
                         </Col>
@@ -198,7 +188,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2 text-left">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="l">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="l">
                                 <Select placeholder="Select unit" style={{ width: '100%' }} className="text-left">
                                     <Option value="ml">Milliliter (ml)</Option>
                                     <Option value="l">Liter (l)</Option>
@@ -209,7 +199,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                             </Form.Item>
                         </Col>
                         <Col span={16}>
-                            <Form.Item name={formPath ? [...formPath, 'value'] : 'value'} noStyle>
+                            <Form.Item name={[...formPath, 'value']} noStyle>
                                 <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} precision={2} min={0} className="text-left" />
                             </Form.Item>
                         </Col>
@@ -222,7 +212,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2 text-left">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="m²">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="m²">
                                 <Select placeholder="Select unit" style={{ width: '100%' }} className="text-left">
                                     <Option value="m²">Square Meter (m²)</Option>
                                     <Option value="cm²">Square Centimeter (cm²)</Option>
@@ -233,7 +223,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                             </Form.Item>
                         </Col>
                         <Col span={16}>
-                            <Form.Item name={formPath ? [...formPath, 'value'] : 'value'} noStyle>
+                            <Form.Item name={[...formPath, 'value']} noStyle>
                                 <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} precision={2} min={0} className="text-left" />
                             </Form.Item>
                         </Col>
@@ -246,7 +236,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                 <div className="space-y-2">
                     <Row gutter={8}>
                         <Col span={8}>
-                            <Form.Item name={formPath ? [...formPath, 'unit'] : 'unit'} noStyle initialValue="h">
+                            <Form.Item name={[...formPath, 'unit']} noStyle initialValue="h">
                                 <Select placeholder="Select unit" style={{ width: '100%' }}>
                                     <Option value="s">Second (s)</Option>
                                     <Option value="min">Minute (min)</Option>
@@ -257,7 +247,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                             </Form.Item>
                         </Col>
                         <Col span={16}>
-                            <Form.Item name={formPath ? [...formPath, 'value'] : 'value'} noStyle>
+                            <Form.Item name={[...formPath, 'value']} noStyle>
                                 <InputNumber style={{ width: '100%' }} placeholder={`Enter ${attribute.displayName}`} precision={2} min={0} />
                             </Form.Item>
                         </Col>
@@ -266,7 +256,7 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
             );
 
         case AttributeFieldType.SIZE:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Select placeholder={`Select ${attribute.displayName}`} style={{ width: '100%' }}>
                         <Option value="XS">Extra Small (XS)</Option>
@@ -277,43 +267,34 @@ export const renderAttributeField = (attribute: { fieldType: AttributeFieldType;
                         <Option value="XXL">Double XL (XXL)</Option>
                     </Select>
                 </Form.Item>
-            ) : (
-                <Select placeholder={`Select ${attribute.displayName}`} style={{ width: '100%' }}>
-                    <Option value="XS">Extra Small (XS)</Option>
-                    <Option value="S">Small (S)</Option>
-                    <Option value="M">Medium (M)</Option>
-                    <Option value="L">Large (L)</Option>
-                    <Option value="XL">Extra Large (XL)</Option>
-                    <Option value="XXL">Double XL (XXL)</Option>
-                </Select>
             );
 
         case AttributeFieldType.EMAIL:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Input type="email" placeholder={`Enter ${attribute.displayName}`} />
                 </Form.Item>
-            ) : <Input type="email" placeholder={`Enter ${attribute.displayName}`} />;
+            );
 
         case AttributeFieldType.URL:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Input type="url" placeholder={`Enter ${attribute.displayName}`} />
                 </Form.Item>
-            ) : <Input type="url" placeholder={`Enter ${attribute.displayName}`} />;
+            );
 
         case AttributeFieldType.PHONE:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Input placeholder={`Enter ${attribute.displayName}`} />
                 </Form.Item>
-            ) : <Input placeholder={`Enter ${attribute.displayName}`} />;
+            );
 
         default:
-            return formPath ? (
+            return (
                 <Form.Item name={formPath} noStyle>
                     <Input placeholder={`Enter ${attribute.displayName}`} />
                 </Form.Item>
-            ) : <Input placeholder={`Enter ${attribute.displayName}`} />;
+            );
     }
 };

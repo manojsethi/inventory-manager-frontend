@@ -142,14 +142,22 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
                 </Button>
             </div>
 
-            <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                <TabPane tab="Basic Details" key="1">
-                    <BasicDetailsTabContent />
-                </TabPane>
-                <TabPane tab="Variants" key="2">
-                    <VariantsTabContent />
-                </TabPane>
-            </Tabs>
+            <Tabs
+                activeKey={activeTab}
+                onChange={setActiveTab}
+                items={[
+                    {
+                        key: '1',
+                        label: 'Basic Details',
+                        children: <BasicDetailsTabContent />
+                    },
+                    {
+                        key: '2',
+                        label: 'Variants',
+                        children: <VariantsTabContent />
+                    }
+                ]}
+            />
         </div>
     );
 };

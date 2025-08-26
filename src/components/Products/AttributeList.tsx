@@ -80,7 +80,6 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                 <Form.Item
                     name={[groupName, 'attributes', attrIndex, 'label']}
                     noStyle
-                    initialValue={attribute.label}
                 >
                     <Input
                         placeholder="Enter label"

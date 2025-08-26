@@ -196,7 +196,6 @@ const BasicDetailsTab: React.FC<BasicDetailsTabProps> = ({
                         name="isActive"
                         label={<span className="font-semibold">Status</span>}
                         valuePropName="checked"
-                        initialValue={true}
                     >
                         <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
                     </Form.Item>
