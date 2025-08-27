@@ -23,6 +23,11 @@ import { renderAttributeField } from '../../utils/attributeFieldRenderer';
 interface AttributeListProps {
     form: any;
     groupName: any;
+    parentPath: (string | number)[];
+    attributeFields: any[];
+    addAttribute: (defaultValue?: any, insertIndex?: number) => void;
+    removeAttribute: (index: number | number[]) => void;
+    moveAttribute: (from: number, to: number) => void;
     forceUpdate: () => void;
 }
 
@@ -30,7 +35,9 @@ interface SortableAttributeItemProps {
     attribute: any;
     attrIndex: number;
     groupName: any;
+    parentPath: (string | number)[];
     form: any;
+    removeAttribute: (index: number | number[]) => void;
     forceUpdate: () => void;
 }
 
@@ -38,7 +45,9 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
     attribute,
     attrIndex,
     groupName,
+    parentPath,
     form,
+    removeAttribute,
     forceUpdate
 }) => {
     const {
@@ -48,7 +57,12 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: attribute.id });
+    } = useSortable({ id: attribute?.id || `attr_${attrIndex}` });
+    // Safety check for attribute object
+    if (!attribute) {
+        console.warn('SortableAttributeItem received null/undefined attribute');
+        return null;
+    }
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -78,7 +92,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                     <span className="text-sm text-gray-600 font-semibold">Label</span>
                 </div>
                 <Form.Item
-                    name={[groupName, 'attributes', attrIndex, 'label']}
+                    name={[attrIndex, 'label']}
                     noStyle
                 >
                     <Input
@@ -94,12 +108,13 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                     <span className="text-sm text-gray-600 font-semibold">Value</span>
                 </div>
                 <div className="form-item-wrapper text-left">
-                    {renderAttributeField(
+                    {attribute && renderAttributeField(
                         {
                             fieldType: attribute.fieldType,
                             displayName: attribute.label || ATTRIBUTE_FIELD_TYPES[attribute.fieldType as AttributeFieldType]
                         },
-                        [groupName, 'attributes', attrIndex, 'value']
+                        [attrIndex, 'value'],
+                        [...parentPath, 'attributes']
                     )}
                 </div>
             </div>
@@ -110,9 +125,7 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                     danger
                     icon={<DeleteOutlined />}
                     onClick={() => {
-                        const currentAttributes = form.getFieldValue(['attributeGroups', groupName, 'attributes']) || [];
-                        const updatedAttributes = currentAttributes.filter((_: any, index: number) => index !== attrIndex);
-                        form.setFieldValue(['attributeGroups', groupName, 'attributes'], updatedAttributes);
+                        removeAttribute(attrIndex);
                         forceUpdate(); // Force re-render to update the display
                     }}
                 >
@@ -123,16 +136,16 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
     );
 };
 
-const AttributeList: React.FC<AttributeListProps> = ({ form, groupName, forceUpdate }) => {
-    const attributes = form.getFieldValue(['attributeGroups', groupName, 'attributes']) || [];
-
-    // Initialize form with existing attributes if they exist
-    React.useEffect(() => {
-        const currentFormAttributes = form.getFieldValue(['attributeGroups', groupName, 'attributes']);
-        if (attributes.length > 0 && (!currentFormAttributes || currentFormAttributes.length === 0)) {
-            form.setFieldValue(['attributeGroups', groupName, 'attributes'], attributes);
-        }
-    }, [form, groupName, attributes]);
+const AttributeList: React.FC<AttributeListProps> = ({
+    form,
+    groupName,
+    parentPath,
+    attributeFields,
+    addAttribute,
+    removeAttribute,
+    moveAttribute,
+    forceUpdate
+}) => {
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -145,17 +158,14 @@ const AttributeList: React.FC<AttributeListProps> = ({ form, groupName, forceUpd
         const { active, over } = event;
 
         if (active.id !== over.id) {
-            const oldIndex = attributes.findIndex((attr: any) => attr.id === active.id);
-            const newIndex = attributes.findIndex((attr: any) => attr.id === over.id);
+            const oldIndex = attributeFields.findIndex((field) => field.key.toString() === active.id);
+            const newIndex = attributeFields.findIndex((field) => field.key.toString() === over.id);
 
-            // Reorder the attributes array
-            const newAttributes = arrayMove(attributes, oldIndex, newIndex);
-
-            // Update the form with the new order
-            form.setFieldValue(['attributeGroups', groupName, 'attributes'], newAttributes);
-
-            // Force re-render to update the display
-            forceUpdate();
+            if (oldIndex !== -1 && newIndex !== -1) {
+                // Use Form.List's move method
+                moveAttribute(oldIndex, newIndex);
+                forceUpdate();
+            }
         }
     };
 
@@ -166,20 +176,29 @@ const AttributeList: React.FC<AttributeListProps> = ({ form, groupName, forceUpd
             onDragEnd={handleDragEnd}
         >
             <SortableContext
-                items={attributes.map((attr: any) => attr.id)}
+                items={attributeFields.map((field) => field.key.toString())}
                 strategy={verticalListSortingStrategy}
             >
                 <div className="space-y-3">
-                    {attributes.map((attribute: any, attrIndex: number) => (
-                        <SortableAttributeItem
-                            key={attribute.id}
-                            attribute={attribute}
-                            attrIndex={attrIndex}
-                            groupName={groupName}
-                            form={form}
-                            forceUpdate={forceUpdate}
-                        />
-                    ))}
+                    {attributeFields.map(({ key: attrKey, name: attrName, ...restAttrField }, attrIndex: number) => {
+                        const attribute = form.getFieldValue([...parentPath, 'attributes', attrName]);
+                        if (!attribute) {
+                            console.warn(`Attribute not found for index ${attrName} in group ${groupName}`);
+                            return null;
+                        }
+                        return (
+                            <SortableAttributeItem
+                                key={attrKey}
+                                attribute={attribute}
+                                attrIndex={attrName}
+                                groupName={groupName}
+                                parentPath={parentPath}
+                                form={form}
+                                removeAttribute={removeAttribute}
+                                forceUpdate={forceUpdate}
+                            />
+                        );
+                    })}
                 </div>
             </SortableContext>
         </DndContext>

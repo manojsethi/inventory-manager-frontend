@@ -47,8 +47,14 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
             if (variantIndex >= 0 && variants[variantIndex]?.sku) {
                 // Update existing variant using SKU
-                await productService.updateVariant(productId, variants[variantIndex].sku, variantDataWithImages);
+                const updatedVariant = await productService.updateVariant(productId, variants[variantIndex].sku, variantDataWithImages);
                 message.success('Variant updated successfully');
+
+                // Update the variants array in the parent component
+                const updatedVariants = [...variants];
+                updatedVariants[variantIndex] = updatedVariant;
+                debugger;
+                onVariantsChange(updatedVariants);
             } else {
                 // Add new variant
                 const updatedProduct = await productService.addVariant(productId, variantDataWithImages);

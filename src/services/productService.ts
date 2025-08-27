@@ -170,7 +170,7 @@ class ProductService {
 
     async updateVariant(productId: string, variantSku: string, variantData: any): Promise<Product> {
         const response = await axios.put(`${API_ENDPOINTS.PRODUCTS.BASE}/${productId}/variants/${variantSku}`, variantData);
-        return response.data.data?.product || response.data.product || response.data;
+        return response.data.data?.variant || response.data.variant || response.data;
     }
 
     async deleteVariant(productId: string, variantSku: string): Promise<Product> {

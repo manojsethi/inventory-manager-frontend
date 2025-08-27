@@ -84,31 +84,34 @@ const SortableGroupItem: React.FC<SortableGroupItemProps> = ({
                     </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Select
-                        placeholder="Add attribute"
-                        size="small"
-                        style={{ width: '200px' }}
-                        value={null}
-                        onSelect={(fieldType: string | null) => {
-                            if (!fieldType) return;
-                            const currentAttributes = form.getFieldValue(['attributeGroups', groupName, 'attributes']) || [];
-                            const newAttribute = {
-                                id: `attr_${Date.now()}`,
-                                fieldType: fieldType as AttributeFieldType,
-                                label: ATTRIBUTE_FIELD_TYPES[fieldType as AttributeFieldType],
-                                value: ''
-                            };
-                            form.setFieldValue(['attributeGroups', groupName, 'attributes'], [...currentAttributes, newAttribute]);
-                            forceUpdate(); // Force re-render to show the new attribute
-                        }}
-                        allowClear
-                    >
-                        {Object.entries(ATTRIBUTE_FIELD_TYPES).map(([key, label]) => (
-                            <Select.Option key={key} value={key}>
-                                {label}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Form.List name={[groupName, 'attributes']}>
+                        {(attributeFields, { add: addAttribute }) => (
+                            <Select
+                                placeholder="Add attribute"
+                                size="small"
+                                style={{ width: '200px' }}
+                                value={null}
+                                onSelect={(fieldType: string | null) => {
+                                    if (!fieldType) return;
+                                    const newAttribute = {
+                                        id: `attr_${Date.now()}`,
+                                        fieldType: fieldType as AttributeFieldType,
+                                        label: ATTRIBUTE_FIELD_TYPES[fieldType as AttributeFieldType],
+                                        value: ''
+                                    };
+                                    addAttribute(newAttribute);
+                                    forceUpdate(); // Force re-render to show the new attribute
+                                }}
+                                allowClear
+                            >
+                                {Object.entries(ATTRIBUTE_FIELD_TYPES).map(([key, label]) => (
+                                    <Select.Option key={key} value={key}>
+                                        {label}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        )}
+                    </Form.List>
                     <Button
                         type="text"
                         size="small"
@@ -124,11 +127,20 @@ const SortableGroupItem: React.FC<SortableGroupItemProps> = ({
             {/* Collapsible Attributes List */}
             {isExpanded && (
                 <div className="p-4">
-                    <AttributeList
-                        form={form}
-                        groupName={groupName}
-                        forceUpdate={forceUpdate}
-                    />
+                    <Form.List name={[groupName, 'attributes']}>
+                        {(attributeFields, { add: addAttribute, remove: removeAttribute, move: moveAttribute }) => (
+                            <AttributeList
+                                form={form}
+                                groupName={groupName}
+                                attributeFields={attributeFields}
+                                addAttribute={addAttribute}
+                                removeAttribute={removeAttribute}
+                                moveAttribute={moveAttribute}
+                                forceUpdate={forceUpdate}
+                                parentPath={['attributeGroups', groupName]}
+                            />
+                        )}
+                    </Form.List>
                 </div>
             )}
         </div>
