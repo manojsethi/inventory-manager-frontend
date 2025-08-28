@@ -244,15 +244,16 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
             message.warning('Please complete the current variant operation first');
             return;
         }
-
-        setVariants([...variants, {
+        let allVariants = [...variants, {
             id: `temp_${Date.now()}`,
             name: '',
             price: 0,
             costPrice: 0,
             images: [],
             attributeGroups: []
-        }]);
+        }]
+        setVariants(allVariants);
+        setExpandedVariantIndex(allVariants.length - 1);
     };
 
     // Handle variant clone (frontend only)
