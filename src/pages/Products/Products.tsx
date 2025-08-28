@@ -32,7 +32,7 @@ const Products: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<string>('active');
     const [productTypeFilter, setProductTypeFilter] = useState<string>('');
     const [productBrandFilter, setProductBrandFilter] = useState<string>('');
 
@@ -167,9 +167,11 @@ const Products: React.FC = () => {
             render: (record: Product) => (
                 <div>
                     <div style={{ fontWeight: 500 }}>{record.variants.length} variants</div>
-                    <div style={{ color: '#666', fontSize: '12px' }}>
-                        ${Math.min(...record.variants.map(v => v.price))} - ${Math.max(...record.variants.map(v => v.price))}
-                    </div>
+                    {record.variants.length > 0 && (
+                        <div style={{ color: '#666', fontSize: '12px' }}>
+                            ₹{Math.min(...record.variants.map(v => v.price))} - ₹{Math.max(...record.variants.map(v => v.price))}
+                        </div>
+                    )}
                 </div>
             ),
         },
@@ -290,9 +292,9 @@ const Products: React.FC = () => {
                             onChange={setStatusFilter}
                             style={{ width: '100%' }}
                         >
-                            <Option value="all">All Status</Option>
                             <Option value="active">Active</Option>
                             <Option value="inactive">Inactive</Option>
+                            <Option value="all">All Status</Option>
                         </Select>
                     </Col>
                     <Col span={4}>
@@ -332,7 +334,7 @@ const Products: React.FC = () => {
                             </Button>
                             <Button onClick={() => {
                                 setSearchTerm('');
-                                setStatusFilter('all');
+                                setStatusFilter('active');
                                 setProductTypeFilter('');
                                 setProductBrandFilter('');
                             }}>

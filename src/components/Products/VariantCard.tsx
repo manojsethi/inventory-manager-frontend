@@ -25,8 +25,9 @@ import { Button, Card, Col, Form, Input, InputNumber, message, Row, Space, Uploa
 import { DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import SortableGroupItem from './SortableGroupItem';
-import { uploadService } from '../../services';
+import { uploadService, ImageType } from '../../services/uploadService';
 import ImageWithFallback from '../Common/ImageWithFallback';
+import VariantSummary from './VariantSummary';
 
 const { TextArea } = Input;
 
@@ -55,25 +56,44 @@ const SortableImageItem: React.FC<{
         <div
             ref={setNodeRef}
             style={style}
-            className="relative group cursor-move"
-            {...attributes}
-            {...listeners}
+            className="relative group"
         >
-            <ImageWithFallback
-                src={url}
-                size="large"
-                alt={`Image ${index + 1}`}
-                className="w-full h-20 object-cover rounded border border-gray-200"
-            />
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove();
-                }}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+            <div
+                {...attributes}
+                {...listeners}
+                className="cursor-move"
             >
-                ×
-            </button>
+                <ImageWithFallback
+                    src={url}
+                    size="large"
+                    alt={`Image ${index + 1}`}
+                    className="w-full h-20 object-cover rounded border border-gray-200"
+                />
+            </div>
+            <Popconfirm
+                title="Remove Image"
+                description="Are you sure you want to remove this image?"
+                onConfirm={() => onRemove()}
+                okText="Yes, Remove"
+                cancelText="Cancel"
+                okType="danger"
+                placement="topRight"
+            >
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
+                    onMouseDown={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                    style={{ zIndex: 1000 }}
+                >
+                    ×
+                </button>
+            </Popconfirm>
         </div>
     );
 };
@@ -86,6 +106,9 @@ interface VariantCardProps {
     onClone: (variantId: string) => void;
     isProcessing?: boolean;
     isUnsaved?: boolean;
+    isCollapsed?: boolean;
+    onToggleCollapse?: () => void;
+    onCheckDuplicate?: (variantData: any, variantIndex: number) => boolean;
 }
 
 const VariantCard: React.FC<VariantCardProps> = ({
@@ -95,7 +118,10 @@ const VariantCard: React.FC<VariantCardProps> = ({
     onDelete,
     onClone,
     isProcessing = false,
-    isUnsaved = false
+    isUnsaved = false,
+    isCollapsed = true,
+    onToggleCollapse,
+    onCheckDuplicate
 }) => {
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -103,7 +129,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
     const [, forceUpdate] = useState({});
     const [expandedGroup, setExpandedGroup] = useState<any>(null);
     const [images, setImages] = useState<string[]>(variant.images || []);
-    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [isDuplicate, setIsDuplicate] = useState(false);
 
     // Initialize form with variant data (excluding images)
     React.useEffect(() => {
@@ -118,6 +144,25 @@ const VariantCard: React.FC<VariantCardProps> = ({
             setImages(variant.images || []);
         }
     }, [variant, form]);
+
+    // Check for duplicates when form values change
+    React.useEffect(() => {
+        if (onCheckDuplicate && !isCollapsed) {
+            const checkDuplicate = () => {
+                const formValues = form.getFieldsValue();
+                const completeVariantData = {
+                    ...formValues,
+                    images: images
+                };
+                const duplicate = onCheckDuplicate(completeVariantData, variantIndex);
+                setIsDuplicate(duplicate);
+            };
+
+            // Debounce the check to avoid too many calls
+            const timeoutId = setTimeout(checkDuplicate, 500);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [form.getFieldsValue(), images, isCollapsed, onCheckDuplicate, variantIndex]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -148,18 +193,27 @@ const VariantCard: React.FC<VariantCardProps> = ({
     };
 
     const handleDelete = async () => {
-        if (variant.sku) {
+        if (variant._id) {
+            // Delete saved variant from backend
             try {
-                await onDelete(variant.sku);
+                await onDelete(variant._id);
                 message.success('Variant deleted successfully');
             } catch (error) {
                 message.error('Failed to delete variant');
+            }
+        } else {
+            // Remove unsaved variant from client-side state
+            try {
+                await onDelete(variant.id);
+                // message.success('Unsaved variant removed');
+            } catch (error) {
+                message.error('Failed to remove variant');
             }
         }
     };
 
     const handleClone = () => {
-        onClone(variant.sku || variant.id);
+        onClone(variant._id || variant.id);
     };
 
     // Handle image upload for this variant
@@ -175,7 +229,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                 return false;
             }
 
-            const uploadedImages = await uploadService.uploadMultiple(fileArray);
+            const uploadedImages = await uploadService.uploadMultiple(fileArray, ImageType.PRODUCT_VARIANTS);
             const imageUrls = uploadedImages.map(img => img.url);
 
             // Ensure we don't have duplicate URLs
@@ -217,26 +271,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
         }
     };
 
-    // Generate summary for the variant
-    const getVariantSummary = () => {
-        const name = form.getFieldValue('name') || variant.name || 'Unnamed Variant';
-        const price = form.getFieldValue('price') || variant.price || 0;
-        const costPrice = form.getFieldValue('costPrice') || variant.costPrice || 0;
-        const imageCount = images.length;
-        const attributeGroups = form.getFieldValue('attributeGroups') || variant.attributeGroups || [];
-        const totalAttributes = attributeGroups.reduce((sum: number, group: any) => sum + (group.attributes?.length || 0), 0);
 
-        return {
-            name,
-            price: `₹${price}`,
-            costPrice: `₹${costPrice}`,
-            imageCount,
-            totalAttributes,
-            sku: variant.sku || 'No SKU'
-        };
-    };
-
-    const summary = getVariantSummary();
 
     return (
         <Card
@@ -246,7 +281,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                         <Button
                             type="text"
                             size="small"
-                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            onClick={onToggleCollapse}
                             className="text-gray-500 hover:text-gray-700"
                             icon={isCollapsed ? <RightOutlined /> : <DownOutlined />}
                         />
@@ -267,13 +302,13 @@ const VariantCard: React.FC<VariantCardProps> = ({
                     <Button
                         type="primary"
                         icon={isCollapsed ? <EditOutlined /> : <SaveOutlined />}
-                        onClick={isCollapsed ? () => setIsCollapsed(false) : handleSave}
+                        onClick={isCollapsed ? onToggleCollapse : handleSave}
                         loading={saving}
                         disabled={isProcessing}
                     >
                         {isCollapsed ? 'Edit' : 'Save'}
                     </Button>
-                    {variant.sku && (
+                    {variant._id && (
                         <Button
                             icon={<CopyOutlined />}
                             onClick={handleClone}
@@ -282,69 +317,31 @@ const VariantCard: React.FC<VariantCardProps> = ({
                             Clone
                         </Button>
                     )}
-                    {variant.sku && (
-                        <Popconfirm
-                            title="Delete Variant"
-                            description="Are you sure you want to delete this variant? This action cannot be undone."
-                            onConfirm={handleDelete}
-                            okText="Yes, Delete"
-                            cancelText="Cancel"
-                            okType="danger"
+                    <Popconfirm
+                        title="Delete Variant"
+                        description={variant._id
+                            ? "Are you sure you want to delete this variant? This action cannot be undone."
+                            : "Are you sure you want to remove this unsaved variant?"
+                        }
+                        onConfirm={handleDelete}
+                        okText="Yes, Delete"
+                        cancelText="Cancel"
+                        okType="danger"
+                    >
+                        <Button
+                            danger
+                            icon={<DeleteOutlined />}
+                            disabled={isProcessing}
                         >
-                            <Button
-                                danger
-                                icon={<DeleteOutlined />}
-                                disabled={isProcessing}
-                            >
-                                Delete
-                            </Button>
-                        </Popconfirm>
-                    )}
+                            {variant._id ? 'Delete' : 'Remove'}
+                        </Button>
+                    </Popconfirm>
                 </Space>
             }
         >
             {/* Summary when collapsed */}
             {isCollapsed && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-start space-x-4">
-                        {/* First Image with Count Below */}
-                        {images.length > 0 && (
-                            <div className="flex flex-col items-center flex-shrink-0">
-                                <ImageWithFallback
-                                    src={images[0]}
-                                    alt="First Image"
-                                    className="w-full h-full object-cover rounded"
-                                />
-                                {images.length > 1 && (
-                                    <div className="mt-1 text-xs text-gray-600 font-semibold text-center">
-                                        {images.length} images
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Variant Info */}
-                        <div className="flex-1 min-w-0">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <span className="font-semibold text-gray-600">Name:</span>
-                                    <div className="text-gray-800">{summary.name}</div>
-                                </div>
-                                <div>
-                                    <span className="font-semibold text-gray-600">Price:</span>
-                                    <div className="text-gray-800">{summary.price}</div>
-                                </div>
-                                <div>
-                                    <span className="font-semibold text-gray-600">Attributes:</span>
-                                    <div className="text-gray-800">{summary.totalAttributes} attribute{summary.totalAttributes !== 1 ? 's' : ''}</div>
-                                </div>
-                            </div>
-                            <div className="mt-2 text-xs text-gray-500">
-                                SKU: {summary.sku}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <VariantSummary variant={variant} images={images} />
             )}
 
             {/* Full content when expanded */}
@@ -450,7 +447,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                                                 items={images.map((_, index) => `image-${index}`)}
                                                 strategy={verticalListSortingStrategy}
                                             >
-                                                <div className="flex flex-wrap gap-2">
+                                                <div className="flex flex-wrap gap-4">
                                                     {images.map((url, index) => (
                                                         <SortableImageItem
                                                             key={`image-${index}`}

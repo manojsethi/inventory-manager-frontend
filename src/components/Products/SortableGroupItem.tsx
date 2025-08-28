@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Button } from 'antd';
+import { Form, Input, Select, Button, Popconfirm } from 'antd';
 import { DeleteOutlined, MenuOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -97,7 +97,8 @@ const SortableGroupItem: React.FC<SortableGroupItemProps> = ({
                                         id: `attr_${Date.now()}`,
                                         fieldType: fieldType as AttributeFieldType,
                                         label: ATTRIBUTE_FIELD_TYPES[fieldType as AttributeFieldType],
-                                        value: ''
+                                        value: '',
+                                        isDifferentiator: false
                                     };
                                     addAttribute(newAttribute);
                                     forceUpdate(); // Force re-render to show the new attribute
@@ -112,15 +113,23 @@ const SortableGroupItem: React.FC<SortableGroupItemProps> = ({
                             </Select>
                         )}
                     </Form.List>
-                    <Button
-                        type="text"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => removeGroup(groupName)}
+                    <Popconfirm
+                        title="Remove Attribute Group"
+                        description="Are you sure you want to remove this attribute group? This will also remove all attributes within the group."
+                        onConfirm={() => removeGroup(groupName)}
+                        okText="Yes, Remove"
+                        cancelText="Cancel"
+                        okType="danger"
                     >
-                        Remove Group
-                    </Button>
+                        <Button
+                            type="text"
+                            size="small"
+                            danger
+                            icon={<DeleteOutlined />}
+                        >
+                            Remove Group
+                        </Button>
+                    </Popconfirm>
                 </div>
             </div>
 

@@ -178,6 +178,11 @@ class ProductService {
         return response.data.data?.product || response.data.product || response.data;
     }
 
+    async getVariantsById(productId: string): Promise<any[]> {
+        const response = await axios.get(`${API_ENDPOINTS.PRODUCTS.BASE}/${productId}/variants`);
+        return response.data.data?.variants || response.data.variants || response.data;
+    }
+
     async getProductVariants(productId: string): Promise<any[]> {
         const response = await axios.get(`${API_ENDPOINTS.PRODUCTS.BASE}/${productId}/variants`);
         return response.data.data?.variants || response.data.variants || response.data;

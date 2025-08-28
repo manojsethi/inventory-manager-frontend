@@ -121,6 +121,8 @@ export const API_ENDPOINTS = {
         MULTIPLE: '/api/upload/multiple',
         DELETE: '/api/upload/:key',
         DELETE_MULTIPLE: '/api/upload/delete-multiple',
+        PRESIGNED_URL: '/api/upload/presigned-url',
+        PRESIGNED_URLS: '/api/upload/presigned-urls',
     },
 } as const;
 

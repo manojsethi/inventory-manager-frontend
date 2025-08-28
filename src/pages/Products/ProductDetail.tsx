@@ -119,14 +119,29 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
         />
     );
 
+    // Function to fetch variants by product ID
+    const fetchVariantsById = async () => {
+        if (!product._id) {
+            message.error('Product ID is required to fetch variants');
+            return;
+        }
+
+        try {
+            const fetchedVariants = await productService.getVariantsById(product._id);
+            setVariants(fetchedVariants);
+        } catch (error) {
+            console.error('Error fetching variants:', error);
+            message.error('Failed to load variants');
+        } finally {
+        }
+    };
+
     // Variants Tab Content
     const VariantsTabContent = () => (
         <VariantsTab
-            productSaved={true}
             productId={product._id}
-            variants={variants}
-            onVariantsChange={handleVariantsChange}
-            onAddNewVariant={handleAddNewVariant}
+            productVariants={variants}
+            onVariantsUpdate={fetchVariantsById}
         />
     );
 

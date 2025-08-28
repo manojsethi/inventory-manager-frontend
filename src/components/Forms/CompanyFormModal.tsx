@@ -14,7 +14,8 @@ import {
     UploadOutlined,
     DeleteOutlined,
 } from '@ant-design/icons';
-import { companyService, uploadService, type Company, type CreateCompanyRequest, type UpdateCompanyRequest } from '../../services';
+import { companyService, type Company, type CreateCompanyRequest, type UpdateCompanyRequest } from '../../services';
+import { uploadService, ImageType } from '../../services/uploadService';
 import { ImageWithFallback } from '../Common';
 
 const { Text } = Typography;
@@ -87,7 +88,7 @@ const CompanyFormModal: React.FC<CompanyFormModalProps> = ({
     const handleLogoUpload = async (file: File) => {
         try {
             setUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file);
+            const uploadedImage = await uploadService.uploadSingle(file, ImageType.COMPANY);
             setLogoUrl(uploadedImage.url);
             form.setFieldsValue({ logo: uploadedImage.url });
             message.success('Logo uploaded successfully');

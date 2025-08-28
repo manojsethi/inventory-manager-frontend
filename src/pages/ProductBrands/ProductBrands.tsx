@@ -26,7 +26,7 @@ import {
     DeleteOutlined as DeleteIcon,
 } from '@ant-design/icons';
 import { productBrandService, type ProductBrand } from '../../services';
-import { uploadService } from '../../services';
+import { uploadService, ImageType } from '../../services/uploadService';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
 
 const { Title } = Typography;
@@ -105,7 +105,7 @@ const ProductBrands: React.FC = () => {
     const handleLogoUpload = async (file: File) => {
         try {
             setUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file);
+            const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_BRAND);
             setLogoUrl(uploadedImage.url);
             form.setFieldsValue({ logo: uploadedImage.url });
             message.success('Logo uploaded successfully');

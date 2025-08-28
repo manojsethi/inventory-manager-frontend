@@ -14,7 +14,8 @@ import {
     UploadOutlined,
     DeleteOutlined,
 } from '@ant-design/icons';
-import { categoryService, uploadService, type Category, type CreateCategoryRequest, type UpdateCategoryRequest } from '../../services';
+import { categoryService, type Category, type CreateCategoryRequest, type UpdateCategoryRequest } from '../../services';
+import { uploadService, ImageType } from '../../services/uploadService';
 import { ImageWithFallback } from '../Common';
 
 const { TextArea } = Input;
@@ -94,7 +95,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     const handleLogoUpload = async (file: File) => {
         try {
             setUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file);
+            const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_TYPE_CATEGORY);
             setLogoUrl(uploadedImage.url);
             form.setFieldsValue({ logo: uploadedImage.url });
             message.success('Logo uploaded successfully');

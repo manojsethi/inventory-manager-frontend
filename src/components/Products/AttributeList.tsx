@@ -1,4 +1,4 @@
-import { DeleteOutlined, MenuOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MenuOutlined, StarOutlined } from '@ant-design/icons';
 import {
     closestCenter,
     DndContext,
@@ -15,7 +15,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, Switch, Tooltip, Badge } from 'antd';
 import React from 'react';
 import { ATTRIBUTE_FIELD_TYPES, AttributeFieldType } from '../../constants/attributeConfigs';
 import { renderAttributeField } from '../../utils/attributeFieldRenderer';
@@ -74,7 +74,10 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50"
+            className={`flex items-start space-x-4 p-4 border rounded-lg ${attribute?.isDifferentiator
+                ? 'border-blue-300 bg-blue-50 hover:bg-blue-100'
+                : 'border-gray-200 bg-white hover:bg-gray-50'
+                }`}
         >
             {/* Drag Handle */}
             <div className="flex-shrink-0 pt-6">
@@ -100,6 +103,13 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                         size="small"
                         style={{ height: '32px' }}
                         className="text-left"
+                        suffix={
+                            attribute?.isDifferentiator ? (
+                                <Tooltip title="This is a key differentiator">
+                                    <StarOutlined style={{ color: '#1890ff' }} />
+                                </Tooltip>
+                            ) : null
+                        }
                     />
                 </Form.Item>
             </div>
@@ -118,7 +128,27 @@ const SortableAttributeItem: React.FC<SortableAttributeItemProps> = ({
                     )}
                 </div>
             </div>
-            <div className="flex-shrink-0 pt-6">
+            <div className="flex-shrink-0 flex flex-col space-y-2">
+                <div className="text-left">
+                    <span className="text-sm text-gray-600 font-semibold flex items-center">
+                        <StarOutlined className="mr-1" style={{ fontSize: '12px' }} />
+                        Differentiator
+                    </span>
+                </div>
+                <Form.Item
+                    name={[attrIndex, 'isDifferentiator']}
+                    valuePropName="checked"
+                    noStyle
+                    initialValue={attribute?.isDifferentiator || false}
+                    className="flex justify-center"
+                >
+                    <Switch
+                        size="small"
+                        checkedChildren="Yes"
+                        unCheckedChildren="No"
+                        style={{ width: '50px', margin: '5px auto' }}
+                    />
+                </Form.Item>
                 <Button
                     type="text"
                     size="small"
@@ -186,6 +216,13 @@ const AttributeList: React.FC<AttributeListProps> = ({
                             console.warn(`Attribute not found for index ${attrName} in group ${groupName}`);
                             return null;
                         }
+
+                        // Ensure isDifferentiator field exists
+                        if (attribute.isDifferentiator === undefined) {
+                            console.log('Initializing isDifferentiator for attribute:', attribute);
+                            form.setFieldValue([...parentPath, 'attributes', attrName, 'isDifferentiator'], false);
+                        }
+
                         return (
                             <SortableAttributeItem
                                 key={attrKey}

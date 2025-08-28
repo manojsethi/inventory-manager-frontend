@@ -100,11 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     icon: <ShoppingOutlined />,
                     label: 'Products',
                 },
-                {
-                    key: '/products/add-tabs',
-                    icon: <ContainerOutlined />,
-                    label: 'Add Product (New)',
-                },
+
                 {
                     key: '/low-stock',
                     icon: <AlertOutlined />,
