@@ -14,6 +14,7 @@ import {
     Popconfirm,
     Typography,
     Breadcrumb,
+    Space,
 } from 'antd';
 import {
     PlusOutlined,
@@ -22,7 +23,7 @@ import {
     ArrowLeftOutlined,
     SaveOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { type Supplier, type Product } from '../../services';
 import { ImageType, uploadService } from '../../services/uploadService';
 import { purchaseBillService, supplierService } from '../../services';
@@ -34,22 +35,23 @@ const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-const CreatePurchaseBill: React.FC = () => {
+const EditPurchaseBill: React.FC = () => {
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [loading, setLoading] = useState(false);
+    const [billLoading, setBillLoading] = useState(true);
     const [items, setItems] = useState<any[]>([]);
     const [attachments, setAttachments] = useState<string[]>([]);
-    const [, setBillNumber] = useState<string>('');
-
-    // Variant selection state (for future use if needed)
-    // const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [billNumber, setBillNumber] = useState<string>('');
 
     useEffect(() => {
-        fetchSuppliers();
-        fetchNextBillNumber();
-    }, []);
+        if (id) {
+            fetchSuppliers();
+            fetchBillData();
+        }
+    }, [id]);
 
     const fetchSuppliers = async () => {
         try {
@@ -60,18 +62,45 @@ const CreatePurchaseBill: React.FC = () => {
         }
     };
 
-    const fetchNextBillNumber = async () => {
+    const fetchBillData = async () => {
         try {
-            const nextNumber = await purchaseBillService.getNextBillNumber();
-            setBillNumber(nextNumber);
+            setBillLoading(true);
+            const billData = await purchaseBillService.getById(id!);
+
+            // Set form values
             form.setFieldsValue({
-                billNumber: nextNumber,
-                billDate: dayjs(),
-                dueDate: dayjs().add(30, 'days'),
-                status: 'draft',
+                billNumber: billData.billNumber,
+                supplierBillNumber: billData.supplierBillNumber,
+                supplierId: billData.supplierId?._id,
+                billDate: dayjs(billData.billDate),
+                dueDate: billData.dueDate ? dayjs(billData.dueDate) : undefined,
+                status: billData.status,
+                subtotal: billData.subtotal,
+                taxAmount: billData.taxAmount,
+                discountAmount: billData.discountAmount,
+                totalAmount: billData.totalAmount,
+                notes: billData.notes,
             });
+
+            // Set items
+            const formattedItems = billData.items?.map((item: any) => ({
+                productName: item.productName || '',
+                selectedProduct: item.productId ? { _id: item.productId } : null,
+                selectedVariant: item.variantId ? { _id: item.variantId, sku: item.sku } : null,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalAmount,
+                notes: item.notes || '',
+            })) || [];
+
+            setItems(formattedItems);
+            setAttachments(billData.attachments || []);
+            setBillNumber(billData.billNumber);
         } catch (err) {
-            message.error('Failed to get next bill number');
+            message.error('Failed to fetch purchase bill data');
+            navigate('/purchase-bills');
+        } finally {
+            setBillLoading(false);
         }
     };
 
@@ -163,7 +192,7 @@ const CreatePurchaseBill: React.FC = () => {
             const formData = {
                 ...values,
                 billDate: values.billDate.format('YYYY-MM-DD'),
-                dueDate: values.dueDate.format('YYYY-MM-DD'),
+                dueDate: values.dueDate ? values.dueDate.format('YYYY-MM-DD') : undefined,
                 items: items.map(item => ({
                     productId: item.selectedProduct?._id || '',
                     variantId: item.selectedVariant?._id || '',
@@ -175,11 +204,12 @@ const CreatePurchaseBill: React.FC = () => {
                 })),
                 attachments,
             };
-            await purchaseBillService.create(formData);
-            message.success('Purchase bill created successfully');
+
+            await purchaseBillService.update(id!, formData);
+            message.success('Purchase bill updated successfully');
             navigate('/purchase-bills');
         } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Failed to create purchase bill');
+            message.error(err instanceof Error ? err.message : 'Failed to update purchase bill');
         } finally {
             setLoading(false);
         }
@@ -189,25 +219,33 @@ const CreatePurchaseBill: React.FC = () => {
         navigate('/purchase-bills');
     };
 
+    if (billLoading) {
+        return (
+            <div className="p-6">
+                <div className="text-center">Loading...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6">
             {/* Breadcrumb */}
             <Breadcrumb className="mb-6">
                 <Breadcrumb.Item>
-                    <div onClick={() => navigate('/purchase-bills')} className="p-0 cursor-pointer text-blue-600">
+                    <Button type="link" onClick={() => navigate('/purchase-bills')} className="p-0">
                         Purchase Bills
-                    </div>
+                    </Button>
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>Create Purchase Bill</Breadcrumb.Item>
+                <Breadcrumb.Item>Edit Purchase Bill</Breadcrumb.Item>
             </Breadcrumb>
 
             {/* Header */}
             <div className="mb-6">
                 <Title level={2} className="mb-2">
-                    Create Purchase Bill
+                    Edit Purchase Bill
                 </Title>
                 <p className="text-gray-600">
-                    Create a new purchase bill for your supplier
+                    Update purchase bill details and items
                 </p>
             </div>
 
@@ -215,14 +253,6 @@ const CreatePurchaseBill: React.FC = () => {
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
-                initialValues={{
-                    status: 'draft',
-                    items: [],
-                    subtotal: 0,
-                    taxAmount: 0,
-                    discountAmount: 0,
-                    totalAmount: 0,
-                }}
             >
                 <Card className="mb-6">
                     <Title level={4} className="mb-4">Bill Details</Title>
@@ -277,7 +307,6 @@ const CreatePurchaseBill: React.FC = () => {
                             <Form.Item
                                 name="dueDate"
                                 label="Due Date"
-                                rules={[{ required: true, message: 'Please select due date' }]}
                             >
                                 <DatePicker style={{ width: '100%' }} />
                             </Form.Item>
@@ -497,30 +526,17 @@ const CreatePurchaseBill: React.FC = () => {
                     </Form.Item>
                 </Card>
 
-                {/* Action Buttons */}
                 <div className="flex justify-end space-x-4">
-                    <Button
-                        icon={<ArrowLeftOutlined />}
-                        onClick={handleCancel}
-                        size="large"
-                    >
+                    <Button onClick={handleCancel}>
                         Cancel
                     </Button>
-                    <Button
-                        type="primary"
-                        icon={<SaveOutlined />}
-                        htmlType="submit"
-                        loading={loading}
-                        size="large"
-                    >
-                        Create Purchase Bill
+                    <Button type="primary" htmlType="submit" loading={loading} icon={<SaveOutlined />}>
+                        Update Purchase Bill
                     </Button>
                 </div>
             </Form>
-
-
         </div>
     );
 };
 
-export default CreatePurchaseBill;
+export default EditPurchaseBill;

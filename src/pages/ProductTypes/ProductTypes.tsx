@@ -133,7 +133,6 @@ const ProductTypes: React.FC = () => {
         try {
             setUploading(true);
             const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_TYPE);
-            debugger;
             setLogoUrl(uploadedImage.url);
             form.setFieldsValue({ logo: uploadedImage.url });
             message.success('Logo uploaded successfully');

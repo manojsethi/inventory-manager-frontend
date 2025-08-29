@@ -14,9 +14,9 @@ export interface PurchaseBillItem {
 export interface PurchaseBill {
     _id: string;
     billNumber: string;
-    supplierId: string;
+    supplierId: any;
     supplierName: string;
-    supplierBillReference: string;
+    supplierBillNumber: string;
     billDate: string;
     dueDate: string;
     items: PurchaseBillItem[];
@@ -33,7 +33,7 @@ export interface PurchaseBill {
 
 export interface CreatePurchaseBillRequest {
     supplierId: string;
-    supplierBillReference: string;
+    supplierBillNumber: string;
     billDate: string;
     dueDate: string;
     items: Omit<PurchaseBillItem, 'productName' | 'totalPrice'>[];
@@ -82,7 +82,7 @@ class PurchaseBillService {
 
     async getById(id: string): Promise<PurchaseBill> {
         const response = await axios.get(`${API_ENDPOINTS.PURCHASE_BILLS.BASE}/${id}`);
-        return response.data.data.purchaseBill;
+        return response.data.data;
     }
 
     async create(data: CreatePurchaseBillRequest): Promise<PurchaseBill> {

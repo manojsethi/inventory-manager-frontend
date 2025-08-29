@@ -130,9 +130,9 @@ const PurchaseBills: React.FC = () => {
             ),
         },
         {
-            title: 'Supplier Bill Ref',
-            dataIndex: 'supplierBillReference',
-            key: 'supplierBillReference',
+            title: 'Supplier Bill Number',
+            dataIndex: 'supplierBillNumber',
+            key: 'supplierBillNumber',
             render: (text: string) => (
                 <span className="font-medium text-gray-700">{text}</span>
             ),
@@ -183,7 +183,7 @@ const PurchaseBills: React.FC = () => {
                             type="text"
                             size="small"
                             icon={<EyeOutlined />}
-                            onClick={() => handleEditBill(record)}
+                            onClick={() => navigate(`/purchase-bills/${record._id}`)}
                         />
                     </Tooltip>
                     <Tooltip title="Edit">
@@ -191,7 +191,7 @@ const PurchaseBills: React.FC = () => {
                             type="text"
                             size="small"
                             icon={<EditOutlined />}
-                            onClick={() => handleEditBill(record)}
+                            onClick={() => navigate(`/purchase-bills/edit/${record._id}`)}
                         />
                     </Tooltip>
                     {record.status === 'draft' && (
