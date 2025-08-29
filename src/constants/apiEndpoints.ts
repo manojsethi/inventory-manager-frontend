@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
         CATEGORIES: '/api/products/categories',
         LOW_STOCK: '/api/products/low-stock',
         BULK_UPDATE: '/api/products/bulk-update',
+        SEARCH: '/api/products/search',
     },
 
     // Product Types endpoints
@@ -98,6 +99,14 @@ export const API_ENDPOINTS = {
         BASE: '/api/sales',
         QUICK_SALE: '/api/sales/quick-sale',
         REPORTS: '/api/sales/reports',
+    },
+
+    // Purchase Bills endpoints
+    PURCHASE_BILLS: {
+        BASE: '/api/purchase-bills',
+        NEXT_NUMBER: '/api/purchase-bills/next-number',
+        SUPPLIER: '/api/purchase-bills/supplier',
+        PENDING: '/api/purchase-bills/pending',
     },
 
     // Reports endpoints

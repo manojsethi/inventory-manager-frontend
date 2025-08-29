@@ -200,6 +200,16 @@ class ProductService {
         return response.data.data?.nextSku || response.data.nextSku || response.data;
     }
 
+    async searchProducts(query: string, limit: number = 10): Promise<Product[]> {
+        const response = await axios.get(API_ENDPOINTS.PRODUCTS.SEARCH, {
+            params: {
+                q: query,
+                limit
+            }
+        });
+        return response.data.data?.products || response.data.products || response.data;
+    }
+
 
 }
 

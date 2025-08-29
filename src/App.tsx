@@ -10,6 +10,8 @@ import Suppliers from './pages/Suppliers/Suppliers';
 import Products from './pages/Products/Products';
 import ProductFormTabs from './pages/Products/ProductFormTabs';
 import ProductDetail from './pages/Products/ProductDetail';
+import PurchaseBills from './pages/PurchaseBills/PurchaseBills';
+import CreatePurchaseBill from './pages/PurchaseBills/CreatePurchaseBill';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/Layout/MainLayout';
@@ -126,6 +128,28 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <ProductDetail />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Purchase Bills routes */}
+        <Route
+          path="/purchase-bills"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <PurchaseBills />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/purchase-bills/create"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CreatePurchaseBill />
               </MainLayout>
             </ProtectedRoute>
           }

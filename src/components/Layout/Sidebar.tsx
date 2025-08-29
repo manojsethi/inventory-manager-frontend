@@ -136,6 +136,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             label: 'Financial Management',
             children: [
                 {
+                    key: '/purchase-bills',
+                    icon: <FileProtectOutlined />,
+                    label: 'Purchase Bills',
+                },
+                {
                     key: '/bills',
                     icon: <FileProtectOutlined />,
                     label: 'Bills & Payments',

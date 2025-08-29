@@ -9,7 +9,8 @@ export enum ImageType {
     SUPPLIER = 'supplier',
     COMPANY = 'company',
     PRODUCT = 'product',
-    PRODUCT_VARIANTS = 'product_variants'
+    PRODUCT_VARIANTS = 'product_variants',
+    PURCHASE_BILL = 'purchase_bill'
 }
 
 // Types

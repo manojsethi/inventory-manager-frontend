@@ -24,6 +24,9 @@ export {
     type ProductType, type ProductTypeCategory, type UpdateProductTypeCategoryRequest, type UpdateProductTypeRequest
 } from './productTypeService';
 export {
+    default as purchaseBillService, type CreatePurchaseBillRequest, type PurchaseBill, type PurchaseBillItem, type PurchaseBillQueryParams, type UpdatePurchaseBillRequest
+} from './purchaseBillService';
+export {
     default as supplierCategoryService, type CreateSupplierCategoryRequest, type SupplierCategory, type SupplierCategoryQueryParams, type SupplierCategoryStats, type UpdateSupplierCategoryRequest
 } from './supplierCategoryService';
 export {
@@ -34,6 +37,6 @@ export {
 } from './supplierService';
 export { default as syncService, type SyncResponse } from './syncService';
 export {
-    default as uploadService, type UploadedImage, type UploadResponse
+    default as uploadService, type UploadResponse, type UploadedImage
 } from './uploadService';
 
