@@ -13,6 +13,7 @@ import ProductDetail from './pages/Products/ProductDetail';
 import PurchaseBills from './pages/PurchaseBills/PurchaseBills';
 import CreatePurchaseBill from './pages/PurchaseBills/CreatePurchaseBill';
 import { PurchaseBillDetail, EditPurchaseBill } from './pages/PurchaseBills';
+import Customers from './pages/Customers';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/Layout/MainLayout';
@@ -95,6 +96,18 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <Suppliers />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Customers routes */}
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Customers />
               </MainLayout>
             </ProtectedRoute>
           }
