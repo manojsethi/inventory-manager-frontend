@@ -21,7 +21,7 @@ import {
     arrayMove
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Card, Col, Form, Input, InputNumber, message, Row, Space, Upload, Collapse, Popconfirm } from 'antd';
+import { Button, Card, Col, Form, Input, InputNumber, message, Row, Space, Upload, Popconfirm } from 'antd';
 import { DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import SortableGroupItem from './SortableGroupItem';
@@ -124,12 +124,10 @@ const VariantCard: React.FC<VariantCardProps> = ({
     onCheckDuplicate
 }) => {
     const [saving, setSaving] = useState(false);
-    const [uploading, setUploading] = useState(false);
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
     const [expandedGroup, setExpandedGroup] = useState<any>(null);
     const [images, setImages] = useState<string[]>(variant.images || []);
-    const [isDuplicate, setIsDuplicate] = useState(false);
 
     // Initialize form with variant data (excluding images)
     React.useEffect(() => {
@@ -145,24 +143,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
         }
     }, [variant, form]);
 
-    // Check for duplicates when form values change
-    React.useEffect(() => {
-        if (onCheckDuplicate && !isCollapsed) {
-            const checkDuplicate = () => {
-                const formValues = form.getFieldsValue();
-                const completeVariantData = {
-                    ...formValues,
-                    images: images
-                };
-                const duplicate = onCheckDuplicate(completeVariantData, variantIndex);
-                setIsDuplicate(duplicate);
-            };
 
-            // Debounce the check to avoid too many calls
-            const timeoutId = setTimeout(checkDuplicate, 500);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [form.getFieldsValue(), images, isCollapsed, onCheckDuplicate, variantIndex]);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -219,8 +200,6 @@ const VariantCard: React.FC<VariantCardProps> = ({
     // Handle image upload for this variant
     const handleImageUpload = async (files: File | File[]) => {
         try {
-            setUploading(true);
-
             const fileArray = Array.isArray(files) ? files : [files];
 
             // Check if adding these images would exceed the 5-image limit
@@ -242,8 +221,6 @@ const VariantCard: React.FC<VariantCardProps> = ({
         } catch (error) {
             message.error('Failed to upload images');
             return false;
-        } finally {
-            setUploading(false);
         }
     };
 
@@ -472,7 +449,6 @@ const VariantCard: React.FC<VariantCardProps> = ({
                         </div>
                         <Form.List name="attributeGroups">
                             {(groupFields, { add: addGroup, remove: removeGroup, move: moveGroup }) => {
-                                const groups = form.getFieldValue('attributeGroups') || [];
 
                                 const handleGroupDragEnd = (event: any) => {
                                     const { active, over } = event;

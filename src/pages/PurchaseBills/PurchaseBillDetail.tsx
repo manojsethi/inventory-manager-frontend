@@ -9,7 +9,6 @@ import {
     Descriptions,
     Table,
     Space,
-    Image,
     Breadcrumb,
     message,
     Popconfirm,
@@ -19,7 +18,6 @@ import {
     EditOutlined,
     DeleteOutlined,
     CheckCircleOutlined,
-    EyeOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { purchaseBillService } from '../../services';

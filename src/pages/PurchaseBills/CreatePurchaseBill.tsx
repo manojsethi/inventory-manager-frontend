@@ -25,7 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { type Supplier, type Product } from '../../services';
 import { ImageType, uploadService } from '../../services/uploadService';
-import { purchaseBillService, supplierService, productService } from '../../services';
+import { purchaseBillService, supplierService } from '../../services';
 import dayjs from 'dayjs';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';

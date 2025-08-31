@@ -14,13 +14,11 @@ import {
     Popconfirm,
     Typography,
     Breadcrumb,
-    Space,
 } from 'antd';
 import {
     PlusOutlined,
     DeleteOutlined,
     UploadOutlined,
-    ArrowLeftOutlined,
     SaveOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -44,7 +42,7 @@ const EditPurchaseBill: React.FC = () => {
     const [billLoading, setBillLoading] = useState(true);
     const [items, setItems] = useState<any[]>([]);
     const [attachments, setAttachments] = useState<string[]>([]);
-    const [billNumber, setBillNumber] = useState<string>('');
+
 
     useEffect(() => {
         if (id) {
@@ -114,7 +112,6 @@ const EditPurchaseBill: React.FC = () => {
 
             setItems(formattedItems);
             setAttachments(billData.attachments || []);
-            setBillNumber(billData.billNumber);
 
             // Calculate initial totals after items are set
             setTimeout(() => {

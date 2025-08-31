@@ -116,10 +116,6 @@ const PurchaseBills: React.FC = () => {
         navigate('/purchase-bills/create');
     };
 
-    const handleEditBill = (bill: PurchaseBill) => {
-        navigate(`/purchase-bills/edit/${bill._id}`);
-    };
-
     const columns = [
         {
             title: 'Bill Number',

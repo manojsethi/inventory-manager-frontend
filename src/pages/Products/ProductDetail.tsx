@@ -7,7 +7,7 @@ import BasicDetailsTab from '../../components/Products/BasicDetailsTab';
 import VariantsTab from '../../components/Products/VariantsTab';
 
 const { Title } = Typography;
-const { TabPane } = Tabs;
+
 
 interface ProductDetailProps {
     // This component will be used for viewing and editing existing products
@@ -56,23 +56,7 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
         }
     };
 
-    // Handle variants change
-    const handleVariantsChange = (newVariants: any[]) => {
-        setVariants(newVariants);
-    };
 
-    // Add new variant (frontend only)
-    const handleAddNewVariant = () => {
-        const newVariant = {
-            id: `temp_${Date.now()}`,
-            name: '',
-            price: 0,
-            currentCost: 0,
-            images: [],
-            attributeGroups: []
-        };
-        setVariants(prev => [...prev, newVariant]);
-    };
 
     if (loading) {
         return (
