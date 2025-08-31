@@ -54,13 +54,13 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
         }
     };
 
-    const handleMarkAsDone = async () => {
+    const handleMarkAsPaid = async () => {
         try {
-            await purchaseBillService.markAsDone(id!);
-            message.success('Purchase bill marked as done');
+            await purchaseBillService.markAsPaid(id!);
+            message.success('Purchase bill marked as paid');
             fetchBillDetail(); // Refresh the data
         } catch (error) {
-            message.error('Failed to mark purchase bill as done');
+            message.error('Failed to mark purchase bill as paid');
         }
     };
 
@@ -104,7 +104,7 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (quantity: number) => (
-                <span className="font-medium">{quantity}</span>
+                <span className="font-medium">{quantity || 0}</span>
             ),
         },
         {
@@ -112,16 +112,20 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
             dataIndex: 'unitPrice',
             key: 'unitPrice',
             render: (price: number) => (
-                <span className="font-medium">₹{price.toFixed(2)}</span>
+                <span className="font-medium">₹{(price || 0).toFixed(2)}</span>
             ),
         },
         {
             title: 'Total Amount',
             dataIndex: 'totalAmount',
             key: 'totalAmount',
-            render: (amount: number) => (
-                <span className="font-semibold text-green-600">₹{amount.toFixed(2)}</span>
-            ),
+            render: (amount: number, record: any) => {
+                // Calculate total based on quantity and unit price if totalAmount is not available
+                const calculatedTotal = amount || (record.quantity * record.unitPrice);
+                return (
+                    <span className="font-semibold text-green-600">₹{(calculatedTotal || 0).toFixed(2)}</span>
+                );
+            },
         },
         {
             title: 'Notes',
@@ -188,9 +192,9 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
                             <Button
                                 type="primary"
                                 icon={<CheckCircleOutlined />}
-                                onClick={handleMarkAsDone}
+                                onClick={handleMarkAsPaid}
                             >
-                                Mark as Done
+                                Mark as Paid
                             </Button>
                         )}
                         <Popconfirm
@@ -228,8 +232,8 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
                             </Descriptions.Item>
                             <Descriptions.Item label="Status">
                                 <Badge
-                                    status={bill.status === 'done' ? 'success' : 'processing'}
-                                    text={bill.status === 'done' ? 'Done' : 'Draft'}
+                                    status={bill.status === 'paid' ? 'success' : 'processing'}
+                                    text={bill.status === 'paid' ? 'Paid' : 'Draft'}
                                 />
                             </Descriptions.Item>
                         </Descriptions>
@@ -273,7 +277,13 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
                         <div className="text-center p-4 border rounded">
                             <div className="text-lg font-semibold text-gray-600">Subtotal</div>
                             <div className="text-2xl font-bold text-blue-600">
-                                ₹{(bill.subtotal || 0).toFixed(2)}
+                                ₹{(() => {
+                                    const calculatedSubtotal = (bill.items || []).reduce((sum: number, item: any) => {
+                                        const itemTotal = item.totalAmount || (item.quantity * item.unitPrice);
+                                        return sum + (itemTotal || 0);
+                                    }, 0);
+                                    return calculatedSubtotal.toFixed(2);
+                                })()}
                             </div>
                         </div>
                     </Col>
@@ -289,7 +299,16 @@ const PurchaseBillDetail: React.FC<PurchaseBillDetailProps> = () => {
                         <div className="text-center p-4 border rounded">
                             <div className="text-lg font-semibold text-gray-600">Total Amount</div>
                             <div className="text-2xl font-bold text-green-600">
-                                ₹{(bill.totalAmount || 0).toFixed(2)}
+                                ₹{(() => {
+                                    const calculatedSubtotal = (bill.items || []).reduce((sum: number, item: any) => {
+                                        const itemTotal = item.totalAmount || (item.quantity * item.unitPrice);
+                                        return sum + (itemTotal || 0);
+                                    }, 0);
+                                    const taxAmount = bill.taxAmount || 0;
+                                    const discountAmount = bill.discountAmount || 0;
+                                    const calculatedTotal = calculatedSubtotal + taxAmount - discountAmount;
+                                    return calculatedTotal.toFixed(2);
+                                })()}
                             </div>
                         </div>
                     </Col>

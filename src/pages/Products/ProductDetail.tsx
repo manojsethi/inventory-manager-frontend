@@ -67,7 +67,7 @@ const ProductDetail: React.FC<ProductDetailProps> = () => {
             id: `temp_${Date.now()}`,
             name: '',
             price: 0,
-            costPrice: 0,
+            currentCost: 0,
             images: [],
             attributeGroups: []
         };

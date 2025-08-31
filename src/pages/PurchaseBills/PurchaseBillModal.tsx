@@ -187,7 +187,7 @@ const PurchaseBillModal: React.FC<PurchaseBillModalProps> = ({
                         >
                             <Select>
                                 <Option value="draft">Draft</Option>
-                                <Option value="done">Done</Option>
+                                <Option value="paid">Paid</Option>
                             </Select>
                         </Form.Item>
                     </Col>

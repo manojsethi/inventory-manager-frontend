@@ -169,7 +169,7 @@ const Products: React.FC = () => {
                     <div style={{ fontWeight: 500 }}>{record.variants.length} variants</div>
                     {record.variants.length > 0 && (
                         <div style={{ color: '#666', fontSize: '12px' }}>
-                            ₹{Math.min(...record.variants.map(v => v.price))} - ₹{Math.max(...record.variants.map(v => v.price))}
+                            ₹{Math.min(...record.variants.map(v => v.currentPrice))} - ₹{Math.max(...record.variants.map(v => v.currentPrice))}
                         </div>
                     )}
                 </div>

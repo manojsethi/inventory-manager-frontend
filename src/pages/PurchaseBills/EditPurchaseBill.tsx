@@ -26,7 +26,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { type Supplier, type Product } from '../../services';
 import { ImageType, uploadService } from '../../services/uploadService';
-import { purchaseBillService, supplierService } from '../../services';
+import { purchaseBillService, supplierService, productService } from '../../services';
 import dayjs from 'dayjs';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';
@@ -73,7 +73,6 @@ const EditPurchaseBill: React.FC = () => {
                 supplierBillNumber: billData.supplierBillNumber,
                 supplierId: billData.supplierId?._id,
                 billDate: dayjs(billData.billDate),
-                dueDate: billData.dueDate ? dayjs(billData.dueDate) : undefined,
                 status: billData.status,
                 subtotal: billData.subtotal,
                 taxAmount: billData.taxAmount,
@@ -82,20 +81,55 @@ const EditPurchaseBill: React.FC = () => {
                 notes: billData.notes,
             });
 
-            // Set items
-            const formattedItems = billData.items?.map((item: any) => ({
-                productName: item.productName || '',
-                selectedProduct: item.productId ? { _id: item.productId } : null,
-                selectedVariant: item.variantId ? { _id: item.variantId, sku: item.sku } : null,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                totalPrice: item.totalAmount,
-                notes: item.notes || '',
-            })) || [];
+            // Fetch product data for each item and set items
+            const formattedItems = await Promise.all(
+                (billData.items || []).map(async (item: any) => {
+                    let selectedProduct = null;
+                    let productName = '';
+
+                    // Fetch product data if productId exists
+                    if (item.productId) {
+                        try {
+                            const productId = typeof item.productId === 'string' ? item.productId : item.productId._id;
+                            const productData = await productService.getById(productId);
+                            selectedProduct = productData;
+                            productName = productData.name;
+                        } catch (error) {
+                            console.error('Failed to fetch product:', error);
+                            productName = item.productName || '';
+                        }
+                    }
+
+                    return {
+                        productName: productName,
+                        selectedProduct: selectedProduct,
+                        selectedVariant: item.variantId?._id ? item.variantId : (typeof item.variantId === 'string' ? { _id: item.variantId, sku: item.sku } : null),
+                        quantity: item.quantity,
+                        unitPrice: item.unitPrice,
+                        totalPrice: item.totalAmount || (item.quantity * item.unitPrice),
+                        notes: item.notes || '',
+                    };
+                })
+            );
 
             setItems(formattedItems);
             setAttachments(billData.attachments || []);
             setBillNumber(billData.billNumber);
+
+            // Calculate initial totals after items are set
+            setTimeout(() => {
+                const subtotal = formattedItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+                const taxAmount = billData.taxAmount || 0;
+                const discountAmount = billData.discountAmount || 0;
+                const totalAmount = subtotal + taxAmount - discountAmount;
+
+                form.setFieldsValue({
+                    subtotal,
+                    taxAmount,
+                    discountAmount,
+                    totalAmount,
+                });
+            }, 100);
         } catch (err) {
             message.error('Failed to fetch purchase bill data');
             navigate('/purchase-bills');
@@ -136,6 +170,28 @@ const EditPurchaseBill: React.FC = () => {
         calculateTotals(newItems);
     };
 
+    const handleQuantityChange = (index: number, value: number | null) => {
+        const newItems = [...items];
+        newItems[index] = {
+            ...newItems[index],
+            quantity: value || 0,
+            totalPrice: (value || 0) * newItems[index].unitPrice
+        };
+        setItems(newItems);
+        calculateTotals(newItems);
+    };
+
+    const handleUnitPriceChange = (index: number, value: number | null) => {
+        const newItems = [...items];
+        newItems[index] = {
+            ...newItems[index],
+            unitPrice: value || 0,
+            totalPrice: newItems[index].quantity * (value || 0)
+        };
+        setItems(newItems);
+        calculateTotals(newItems);
+    };
+
     const handleProductSelect = (index: number, productName: string, product?: Product) => {
         const newItems = [...items];
         newItems[index] = {
@@ -152,7 +208,8 @@ const EditPurchaseBill: React.FC = () => {
         newItems[index] = {
             ...newItems[index],
             selectedVariant: variant,
-            unitPrice: variant.currentCost || variant.costPrice || 0,
+            unitPrice: variant.currentCost || variant.currentCost || 0,
+            totalPrice: newItems[index].quantity * (variant.currentCost || variant.currentCost || 0),
         };
         setItems(newItems);
         calculateTotals(newItems);
@@ -173,7 +230,7 @@ const EditPurchaseBill: React.FC = () => {
     const handleAttachmentUpload = async (file: File) => {
         try {
             const uploadedImage = await uploadService.uploadSingle(file, ImageType.PURCHASE_BILL);
-            setAttachments([...attachments, uploadedImage.key]);
+            setAttachments([...attachments, uploadedImage.url]);
             return false; // Prevent default upload behavior
         } catch (error) {
             message.error('Failed to upload attachment');
@@ -192,7 +249,6 @@ const EditPurchaseBill: React.FC = () => {
             const formData = {
                 ...values,
                 billDate: values.billDate.format('YYYY-MM-DD'),
-                dueDate: values.dueDate ? values.dueDate.format('YYYY-MM-DD') : undefined,
                 items: items.map(item => ({
                     productId: item.selectedProduct?._id || '',
                     variantId: item.selectedVariant?._id || '',
@@ -232,9 +288,9 @@ const EditPurchaseBill: React.FC = () => {
             {/* Breadcrumb */}
             <Breadcrumb className="mb-6">
                 <Breadcrumb.Item>
-                    <Button type="link" onClick={() => navigate('/purchase-bills')} className="p-0">
+                    <div onClick={() => navigate('/purchase-bills')} className="p-0 cursor-pointer text-blue-600">
                         Purchase Bills
-                    </Button>
+                    </div>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item>Edit Purchase Bill</Breadcrumb.Item>
             </Breadcrumb>
@@ -294,7 +350,7 @@ const EditPurchaseBill: React.FC = () => {
                     </Row>
 
                     <Row gutter={16}>
-                        <Col span={8}>
+                        <Col span={12}>
                             <Form.Item
                                 name="billDate"
                                 label="Bill Date"
@@ -303,22 +359,14 @@ const EditPurchaseBill: React.FC = () => {
                                 <DatePicker style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="dueDate"
-                                label="Due Date"
-                            >
-                                <DatePicker style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
+                        <Col span={12}>
                             <Form.Item
                                 name="status"
                                 label="Status"
                             >
                                 <Select>
                                     <Option value="draft">Draft</Option>
-                                    <Option value="done">Done</Option>
+                                    <Option value="paid">Paid</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -361,7 +409,7 @@ const EditPurchaseBill: React.FC = () => {
                                     <InputNumber
                                         placeholder="Qty"
                                         value={item.quantity}
-                                        onChange={(value) => handleItemChange(index, 'quantity', value)}
+                                        onChange={(value) => handleQuantityChange(index, value)}
                                         min={1}
                                         className="w-full"
                                     />
@@ -371,7 +419,7 @@ const EditPurchaseBill: React.FC = () => {
                                     <InputNumber
                                         placeholder="Unit Price"
                                         value={item.unitPrice}
-                                        onChange={(value) => handleItemChange(index, 'unitPrice', value)}
+                                        onChange={(value) => handleUnitPriceChange(index, value)}
                                         min={0}
                                         step={0.01}
                                         prefix="₹"
@@ -445,7 +493,8 @@ const EditPurchaseBill: React.FC = () => {
                                     onChange={(value) => {
                                         const subtotal = form.getFieldValue('subtotal') || 0;
                                         const discountAmount = form.getFieldValue('discountAmount') || 0;
-                                        form.setFieldsValue({ totalAmount: subtotal + (value || 0) - discountAmount });
+                                        const totalAmount = subtotal + (value || 0) - discountAmount;
+                                        form.setFieldsValue({ totalAmount });
                                     }}
                                 />
                             </Form.Item>
@@ -463,7 +512,8 @@ const EditPurchaseBill: React.FC = () => {
                                     onChange={(value) => {
                                         const subtotal = form.getFieldValue('subtotal') || 0;
                                         const taxAmount = form.getFieldValue('taxAmount') || 0;
-                                        form.setFieldsValue({ totalAmount: subtotal + taxAmount - (value || 0) });
+                                        const totalAmount = subtotal + taxAmount - (value || 0);
+                                        form.setFieldsValue({ totalAmount });
                                     }}
                                 />
                             </Form.Item>

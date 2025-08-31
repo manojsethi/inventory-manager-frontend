@@ -46,7 +46,7 @@ src/pages/PurchaseBills/
 - `GET /api/purchase-bills/:id` - Get purchase bill by ID
 - `PUT /api/purchase-bills/:id` - Update purchase bill
 - `DELETE /api/purchase-bills/:id` - Delete purchase bill
-- `POST /api/purchase-bills/:id/mark-done` - Mark bill as done
+- `POST /api/purchase-bills/:id/mark-paid` - Mark bill as paid
 
 ### Data Types
 ```typescript
@@ -62,7 +62,7 @@ interface PurchaseBill {
     taxAmount: number;
     discountAmount: number;
     totalAmount: number;
-    status: 'draft' | 'done';
+    status: 'draft' | 'paid';
     notes?: string;
     attachments?: string[];
 }
@@ -97,10 +97,10 @@ interface PurchaseBill {
 4. Update attachments if required
 5. Click **"Update"** to save changes
 
-### Marking as Done
-1. For draft bills, click the **"Mark as Done"** icon
+### Marking as Paid
+1. For draft bills, click the **"Mark as Paid"** icon
 2. This will trigger stock movements in the backend
-3. The bill status will change to "Done"
+3. The bill status will change to "Paid"
 
 ### Deleting a Bill
 1. Click the **Delete** icon on any bill row

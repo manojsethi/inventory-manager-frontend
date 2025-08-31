@@ -24,7 +24,7 @@ export interface PurchaseBill {
     taxAmount: number;
     discountAmount: number;
     totalAmount: number;
-    status: 'draft' | 'done';
+    status: 'draft' | 'paid';
     notes?: string;
     attachments?: string[];
     createdAt?: string;
@@ -46,14 +46,14 @@ export interface CreatePurchaseBillRequest {
 }
 
 export interface UpdatePurchaseBillRequest extends Partial<CreatePurchaseBillRequest> {
-    status?: 'draft' | 'done';
+    status?: 'draft' | 'paid';
 }
 
 export interface PurchaseBillQueryParams {
     page?: number;
     limit?: number;
     search?: string;
-    status?: 'draft' | 'done';
+    status?: 'draft' | 'paid';
     supplierId?: string;
     startDate?: string;
     endDate?: string;
@@ -99,8 +99,8 @@ class PurchaseBillService {
         await axios.delete(`${API_ENDPOINTS.PURCHASE_BILLS.BASE}/${id}`);
     }
 
-    async markAsDone(id: string): Promise<PurchaseBill> {
-        const response = await axios.post(`${API_ENDPOINTS.PURCHASE_BILLS.BASE}/${id}/mark-done`);
+    async markAsPaid(id: string): Promise<PurchaseBill> {
+        const response = await axios.post(`${API_ENDPOINTS.PURCHASE_BILLS.BASE}/${id}/mark-paid`);
         return response.data.data.purchaseBill;
     }
 

@@ -33,8 +33,8 @@ const VariantSummary: React.FC<VariantSummaryProps> = ({ variant, images }) => {
     // Generate summary for the variant
     const getVariantSummary = () => {
         const name = form.getFieldValue('name') || variant.name || 'Unnamed Variant';
-        const price = form.getFieldValue('price') || variant.price || 0;
-        const costPrice = form.getFieldValue('costPrice') || variant.costPrice || 0;
+        const currentPrice = form.getFieldValue('currentPrice') || variant.currentPrice || 0;
+        const currentCost = form.getFieldValue('currentCost') || variant.currentCost || 0;
         const imageCount = images.length;
         const attributeGroups = form.getFieldValue('attributeGroups') || variant.attributeGroups || [];
         const totalAttributes = attributeGroups.reduce((sum: number, group: any) => sum + (group.attributes?.length || 0), 0);
@@ -63,8 +63,8 @@ const VariantSummary: React.FC<VariantSummaryProps> = ({ variant, images }) => {
 
         return {
             name,
-            price: `₹${price}`,
-            costPrice: `₹${costPrice}`,
+            currentPrice: `₹${currentPrice}`,
+            currentCost: `₹${currentCost}`,
             imageCount,
             totalAttributes,
             differentiatorAttributes,
@@ -102,7 +102,7 @@ const VariantSummary: React.FC<VariantSummaryProps> = ({ variant, images }) => {
                         </div>
                         <div>
                             <span className="font-semibold text-gray-600">Price:</span>
-                            <div className="text-gray-800">{summary.price}</div>
+                            <div className="text-gray-800">{summary.currentPrice}</div>
                         </div>
                         <div>
                             <span className="font-semibold text-gray-600">Attributes:</span>

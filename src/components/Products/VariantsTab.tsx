@@ -32,12 +32,22 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
     const checkForDuplicateVariants = (variantData: any, currentVariantIndex: number): boolean => {
         const currentDifferentiators = getDifferentiatorAttributes(variantData);
 
+        // Skip comparison if current variant has no attributes
+        if (currentDifferentiators.length === 0) {
+            return false;
+        }
+
         // Check against all other variants
         for (let i = 0; i < variants.length; i++) {
             if (i === currentVariantIndex) continue; // Skip current variant
 
             const otherVariant = variants[i];
             const otherDifferentiators = getDifferentiatorAttributes(otherVariant);
+
+            // Skip comparison if other variant has no attributes
+            if (otherDifferentiators.length === 0) {
+                continue;
+            }
 
             // Check if all differentiator attributes match
             if (areDifferentiatorsEqual(currentDifferentiators, otherDifferentiators)) {
@@ -90,6 +100,11 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
         const currentDifferentiators = getDifferentiatorAttributes(variantData);
         const missingAttributes: string[] = [];
 
+        // Skip consistency check if current variant has no attributes
+        if (currentDifferentiators.length === 0) {
+            return { isValid: true, missingAttributes: [] };
+        }
+
         // Get all differentiator labels from current variant
         const currentDifferentiatorLabels = currentDifferentiators.map(d => d.label);
 
@@ -99,6 +114,12 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
 
             const otherVariant = variants[i];
             const otherDifferentiators = getDifferentiatorAttributes(otherVariant);
+
+            // Skip comparison if other variant has no attributes
+            if (otherDifferentiators.length === 0) {
+                continue;
+            }
+
             const otherDifferentiatorLabels = otherDifferentiators.map(d => d.label);
 
             // Find missing differentiator attributes in current variant
@@ -247,8 +268,8 @@ const VariantsTab: React.FC<VariantsTabProps> = ({
         let allVariants = [...variants, {
             id: `temp_${Date.now()}`,
             name: '',
-            price: 0,
-            costPrice: 0,
+            currentPrice: 0,
+            currentCost: 0,
             images: [],
             attributeGroups: []
         }]

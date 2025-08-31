@@ -10,8 +10,6 @@ interface Variant {
     name: string;
     currentPrice?: number;
     currentCost?: number;
-    price?: number;
-    costPrice?: number;
     images?: string[];
     isActive: boolean;
 }

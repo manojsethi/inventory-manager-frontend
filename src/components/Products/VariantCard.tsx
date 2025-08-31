@@ -136,8 +136,8 @@ const VariantCard: React.FC<VariantCardProps> = ({
         if (variant) {
             form.setFieldsValue({
                 name: variant.name || '',
-                price: variant.price || 0,
-                costPrice: variant.costPrice || 0,
+                currentPrice: variant.currentPrice || 0,
+                currentCost: variant.currentCost || 0,
                 description: variant.description || '',
                 attributeGroups: variant.attributeGroups || []
             });
@@ -365,7 +365,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                     <Row gutter={16} align="top">
                         <Col span={12}>
                             <Form.Item
-                                name="price"
+                                name="currentPrice"
                                 label={<span className="font-semibold">Retail Price (₹)</span>}
                                 rules={[{ required: true, message: 'Please enter price' }]}
                             >
@@ -379,7 +379,7 @@ const VariantCard: React.FC<VariantCardProps> = ({
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="costPrice"
+                                name="currentCost"
                                 label={<span className="font-semibold">Cost Price (₹)</span>}
                             >
                                 <InputNumber

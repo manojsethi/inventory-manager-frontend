@@ -37,7 +37,7 @@ const PurchaseBills: React.FC = () => {
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'done'>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'paid'>('all');
     const [supplierFilter, setSupplierFilter] = useState<string>('all');
     const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
@@ -97,9 +97,9 @@ const PurchaseBills: React.FC = () => {
         }
     };
 
-    const handleMarkAsDone = async (id: string) => {
+    const handleMarkAsPaid = async (id: string) => {
         try {
-            await purchaseBillService.markAsDone(id);
+            await purchaseBillService.markAsPaid(id);
             message.success('Purchase bill marked as done successfully');
             fetchPurchaseBills();
         } catch (err) {
@@ -168,8 +168,8 @@ const PurchaseBills: React.FC = () => {
             key: 'status',
             render: (status: string) => (
                 <Badge
-                    status={status === 'done' ? 'success' : 'processing'}
-                    text={status === 'done' ? 'Done' : 'Draft'}
+                    status={status === 'paid' ? 'success' : 'processing'}
+                    text={status === 'paid' ? 'Paid' : 'Draft'}
                 />
             ),
         },
@@ -195,12 +195,12 @@ const PurchaseBills: React.FC = () => {
                         />
                     </Tooltip>
                     {record.status === 'draft' && (
-                        <Tooltip title="Mark as Done">
+                        <Tooltip title="Mark as Paid">
                             <Button
                                 type="text"
                                 size="small"
                                 icon={<CheckCircleOutlined />}
-                                onClick={() => handleMarkAsDone(record._id)}
+                                onClick={() => handleMarkAsPaid(record._id)}
                             />
                         </Tooltip>
                     )}
@@ -258,7 +258,7 @@ const PurchaseBills: React.FC = () => {
                             >
                                 <Option value="all">All Status</Option>
                                 <Option value="draft">Draft</Option>
-                                <Option value="done">Done</Option>
+                                <Option value="paid">Paid</Option>
                             </Select>
                         </Col>
                         <Col xs={24} sm={12} md={4}>

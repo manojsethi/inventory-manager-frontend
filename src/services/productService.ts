@@ -6,8 +6,8 @@ export interface ProductVariant {
     sku: string;
     name: string;
     description?: string;
-    price: number;
-    costPrice: number;
+    currentPrice: number;
+    currentCost: number;
     stockQuantity: number;
     isActive: boolean;
     barcode?: string;
@@ -62,8 +62,8 @@ export interface CreateProductRequest {
     variants: {
         name: string;
         description?: string;
-        price: number;
-        costPrice: number;
+        currentPrice: number;
+        currentCost: number;
         stockQuantity: number;
         barcode?: string;
         images?: string[];
@@ -90,8 +90,8 @@ export interface UpdateProductRequest extends Partial<CreateProductRequest> {
     variants?: {
         name: string;
         description?: string;
-        price: number;
-        costPrice: number;
+        currentPrice: number;
+        currentCost: number;
         stockQuantity: number;
         barcode?: string;
         images?: string[];

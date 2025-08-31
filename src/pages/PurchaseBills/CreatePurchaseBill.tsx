@@ -25,7 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { type Supplier, type Product } from '../../services';
 import { ImageType, uploadService } from '../../services/uploadService';
-import { purchaseBillService, supplierService } from '../../services';
+import { purchaseBillService, supplierService, productService } from '../../services';
 import dayjs from 'dayjs';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';
@@ -51,6 +51,13 @@ const CreatePurchaseBill: React.FC = () => {
         fetchNextBillNumber();
     }, []);
 
+    // Calculate totals whenever items change
+    useEffect(() => {
+        if (items.length > 0) {
+            calculateTotals(items);
+        }
+    }, [items]);
+
     const fetchSuppliers = async () => {
         try {
             const response = await supplierService.getAll({ limit: 1000 });
@@ -67,7 +74,6 @@ const CreatePurchaseBill: React.FC = () => {
             form.setFieldsValue({
                 billNumber: nextNumber,
                 billDate: dayjs(),
-                dueDate: dayjs().add(30, 'days'),
                 status: 'draft',
             });
         } catch (err) {
@@ -85,7 +91,9 @@ const CreatePurchaseBill: React.FC = () => {
             totalPrice: 0,
             notes: '',
         };
-        setItems([...items, newItem]);
+        const newItems = [...items, newItem];
+        setItems(newItems);
+        calculateTotals(newItems);
     };
 
     const handleRemoveItem = (index: number) => {
@@ -107,6 +115,28 @@ const CreatePurchaseBill: React.FC = () => {
         calculateTotals(newItems);
     };
 
+    const handleQuantityChange = (index: number, value: number | null) => {
+        const newItems = [...items];
+        newItems[index] = {
+            ...newItems[index],
+            quantity: value || 0,
+            totalPrice: (value || 0) * newItems[index].unitPrice
+        };
+        setItems(newItems);
+        calculateTotals(newItems);
+    };
+
+    const handleUnitPriceChange = (index: number, value: number | null) => {
+        const newItems = [...items];
+        newItems[index] = {
+            ...newItems[index],
+            unitPrice: value || 0,
+            totalPrice: newItems[index].quantity * (value || 0)
+        };
+        setItems(newItems);
+        calculateTotals(newItems);
+    };
+
     const handleProductSelect = (index: number, productName: string, product?: Product) => {
         const newItems = [...items];
         newItems[index] = {
@@ -123,7 +153,8 @@ const CreatePurchaseBill: React.FC = () => {
         newItems[index] = {
             ...newItems[index],
             selectedVariant: variant,
-            unitPrice: variant.currentCost || variant.costPrice || 0,
+            unitPrice: variant.currentCost || variant.currentCost || 0,
+            totalPrice: newItems[index].quantity * (variant.currentCost || variant.currentCost || 0),
         };
         setItems(newItems);
         calculateTotals(newItems);
@@ -144,7 +175,7 @@ const CreatePurchaseBill: React.FC = () => {
     const handleAttachmentUpload = async (file: File) => {
         try {
             const uploadedImage = await uploadService.uploadSingle(file, ImageType.PURCHASE_BILL);
-            setAttachments([...attachments, uploadedImage.key]);
+            setAttachments([...attachments, uploadedImage.url]);
             return false; // Prevent default upload behavior
         } catch (error) {
             message.error('Failed to upload attachment');
@@ -163,7 +194,6 @@ const CreatePurchaseBill: React.FC = () => {
             const formData = {
                 ...values,
                 billDate: values.billDate.format('YYYY-MM-DD'),
-                dueDate: values.dueDate.format('YYYY-MM-DD'),
                 items: items.map(item => ({
                     productId: item.selectedProduct?._id || '',
                     variantId: item.selectedVariant?._id || '',
@@ -264,7 +294,7 @@ const CreatePurchaseBill: React.FC = () => {
                     </Row>
 
                     <Row gutter={16}>
-                        <Col span={8}>
+                        <Col span={12}>
                             <Form.Item
                                 name="billDate"
                                 label="Bill Date"
@@ -273,23 +303,14 @@ const CreatePurchaseBill: React.FC = () => {
                                 <DatePicker style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="dueDate"
-                                label="Due Date"
-                                rules={[{ required: true, message: 'Please select due date' }]}
-                            >
-                                <DatePicker style={{ width: '100%' }} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={8}>
+                        <Col span={12}>
                             <Form.Item
                                 name="status"
                                 label="Status"
                             >
                                 <Select>
                                     <Option value="draft">Draft</Option>
-                                    <Option value="done">Done</Option>
+                                    <Option value="paid">Paid</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
@@ -332,7 +353,7 @@ const CreatePurchaseBill: React.FC = () => {
                                     <InputNumber
                                         placeholder="Qty"
                                         value={item.quantity}
-                                        onChange={(value) => handleItemChange(index, 'quantity', value)}
+                                        onChange={(value) => handleQuantityChange(index, value)}
                                         min={1}
                                         className="w-full"
                                     />
@@ -342,7 +363,7 @@ const CreatePurchaseBill: React.FC = () => {
                                     <InputNumber
                                         placeholder="Unit Price"
                                         value={item.unitPrice}
-                                        onChange={(value) => handleItemChange(index, 'unitPrice', value)}
+                                        onChange={(value) => handleUnitPriceChange(index, value)}
                                         min={0}
                                         step={0.01}
                                         prefix="₹"
@@ -416,7 +437,8 @@ const CreatePurchaseBill: React.FC = () => {
                                     onChange={(value) => {
                                         const subtotal = form.getFieldValue('subtotal') || 0;
                                         const discountAmount = form.getFieldValue('discountAmount') || 0;
-                                        form.setFieldsValue({ totalAmount: subtotal + (value || 0) - discountAmount });
+                                        const totalAmount = subtotal + (value || 0) - discountAmount;
+                                        form.setFieldsValue({ totalAmount });
                                     }}
                                 />
                             </Form.Item>
@@ -434,7 +456,8 @@ const CreatePurchaseBill: React.FC = () => {
                                     onChange={(value) => {
                                         const subtotal = form.getFieldValue('subtotal') || 0;
                                         const taxAmount = form.getFieldValue('taxAmount') || 0;
-                                        form.setFieldsValue({ totalAmount: subtotal + taxAmount - (value || 0) });
+                                        const totalAmount = subtotal + taxAmount - (value || 0);
+                                        form.setFieldsValue({ totalAmount });
                                     }}
                                 />
                             </Form.Item>
