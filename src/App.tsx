@@ -14,6 +14,7 @@ import PurchaseBills from './pages/PurchaseBills/PurchaseBills';
 import CreatePurchaseBill from './pages/PurchaseBills/CreatePurchaseBill';
 import { PurchaseBillDetail, EditPurchaseBill } from './pages/PurchaseBills';
 import Customers from './pages/Customers';
+import { SaleBills, CreateSaleBill, SaleBillDetail, EditSaleBill } from './pages/SaleBills';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/Layout/MainLayout';
@@ -184,6 +185,48 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <EditPurchaseBill />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Sale Bills routes */}
+        <Route
+          path="/sale-bills"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SaleBills />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sale-bills/create"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CreateSaleBill />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sale-bills/:id"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SaleBillDetail />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sale-bills/edit/:id"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <EditSaleBill />
               </MainLayout>
             </ProtectedRoute>
           }

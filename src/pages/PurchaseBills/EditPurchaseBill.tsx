@@ -226,6 +226,7 @@ const EditPurchaseBill: React.FC = () => {
 
     const handleAttachmentUpload = async (file: File) => {
         try {
+            debugger;
             const uploadedImage = await uploadService.uploadSingle(file, ImageType.PURCHASE_BILL);
             setAttachments([...attachments, uploadedImage.url]);
             return false; // Prevent default upload behavior
@@ -255,9 +256,9 @@ const EditPurchaseBill: React.FC = () => {
                     totalAmount: item.totalPrice,
                     notes: item.notes,
                 })),
-                attachments,
+                images: attachments,
             };
-
+            debugger;
             await purchaseBillService.update(id!, formData);
             message.success('Purchase bill updated successfully');
             navigate('/purchase-bills');
@@ -548,10 +549,10 @@ const EditPurchaseBill: React.FC = () => {
                         >
                             <Button icon={<UploadOutlined />}>Upload Attachment</Button>
                         </Upload>
-                        <div className="mt-2">
+                        <div className="mt-2 grid grid-cols-3 gap-3">
                             {attachments.map((attachment, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 border rounded mb-2">
-                                    <span className="text-sm">{attachment}</span>
+                                <div key={index} className="relative group border rounded overflow-hidden">
+                                    <img src={attachment} alt={`attachment-${index}`} className="w-full h-24 object-cover" />
                                     <Popconfirm
                                         title="Remove Attachment"
                                         description="Are you sure you want to remove this attachment?"
@@ -560,12 +561,12 @@ const EditPurchaseBill: React.FC = () => {
                                         cancelText="Cancel"
                                         okType="danger"
                                     >
-                                        <Button
-                                            type="text"
-                                            size="small"
-                                            danger
-                                            icon={<DeleteOutlined />}
-                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute top-1 right-1 bg-white/80 text-red-600 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100"
+                                        >
+                                            Remove
+                                        </button>
                                     </Popconfirm>
                                 </div>
                             ))}

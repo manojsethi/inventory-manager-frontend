@@ -114,9 +114,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             label: 'Sales Management',
             children: [
                 {
-                    key: '/sales',
+                    key: '/sale-bills',
                     icon: <DollarOutlined />,
-                    label: 'Sales',
+                    label: 'Sale Bills',
                 },
                 {
                     key: '/customers',

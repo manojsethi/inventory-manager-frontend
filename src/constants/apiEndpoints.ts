@@ -96,7 +96,8 @@ export const API_ENDPOINTS = {
 
     // Sales endpoints
     SALES: {
-        BASE: '/api/sales',
+        BASE: '/api/sale-bills',
+        NEXT_NUMBER: '/api/sale-bills/next-number',
         QUICK_SALE: '/api/sales/quick-sale',
         REPORTS: '/api/sales/reports',
     },
