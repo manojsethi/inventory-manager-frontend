@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Form, Input, Select, Switch, Row, Col, message } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import { productTypeService, productBrandService, ProductType, ProductTypeCategory, ProductBrand } from '../../services';
+import { productTypeService, productBrandService } from '../../services';
+import type { ProductType, ProductTypeCategory, ProductBrand } from '../../types';
 
 const { TextArea } = Input;
 

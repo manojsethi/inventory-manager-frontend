@@ -1,51 +1,13 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    CreateProductTypeCategoryRequest,
+    CreateProductTypeRequest,
+    ProductType,
+    ProductTypeCategory,
+    UpdateProductTypeCategoryRequest,
+    UpdateProductTypeRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface ProductType {
-    _id: string;
-    name: string;
-    description?: string;
-    logo?: string;
-    skuPrefix: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateProductTypeRequest {
-    name: string;
-    description?: string;
-    logo?: string;
-    skuPrefix: string;
-}
-
-export interface UpdateProductTypeRequest extends Partial<CreateProductTypeRequest> {
-}
-
-// ProductTypeCategory types
-export interface ProductTypeCategory {
-    _id: string;
-    name: string;
-    description?: string;
-    logo?: string;
-    skuPrefix: string;
-    isActive: boolean;
-    productType: string; // ProductType ID
-    latestNumber: number;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateProductTypeCategoryRequest {
-    name: string;
-    description?: string;
-    logo?: string;
-    skuPrefix: string;
-    isActive?: boolean;
-}
-
-export interface UpdateProductTypeCategoryRequest extends Partial<CreateProductTypeCategoryRequest> {
-}
 
 class ProductTypeService {
     // ProductType methods

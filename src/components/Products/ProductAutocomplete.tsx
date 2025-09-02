@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AutoComplete, Input, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { productService, type Product } from '../../services';
+import { productService } from '../../services';
+import type { Product } from '../../types';
 import debounce from 'lodash/debounce';
 
 interface ProductAutocompleteProps {

@@ -1,47 +1,11 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    Company,
+    CompanyQueryParams,
+    CreateCompanyRequest,
+    UpdateCompanyRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface Company {
-    _id: string;
-    name: string;
-    logo: string;
-    isActive: boolean;
-    totalProducts: number;
-    totalCategories: number;
-    totalSuppliers: number;
-    totalSales: number;
-    totalRevenue: number;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateCompanyRequest {
-    name: string;
-    logo: string;
-    isActive?: boolean;
-}
-
-export interface UpdateCompanyRequest extends Partial<CreateCompanyRequest> {
-    isActive?: boolean;
-}
-
-export interface CompanyQueryParams {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isActive?: boolean;
-}
-
-export interface PaginatedResponse<T> {
-    data: T[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
-}
 
 class CompanyService {
     async getAll(params?: CompanyQueryParams): Promise<Company[]> {

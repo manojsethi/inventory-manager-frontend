@@ -1,24 +1,10 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    CreateProductBrandRequest,
+    ProductBrand,
+    UpdateProductBrandRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface ProductBrand {
-    _id: string;
-    name: string;
-    logo: string;
-    isActive: boolean;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateProductBrandRequest {
-    name: string;
-    logo: string;
-    isActive?: boolean;
-}
-
-export interface UpdateProductBrandRequest extends Partial<CreateProductBrandRequest> {
-}
 
 class ProductBrandService {
     async getAll(): Promise<ProductBrand[]> {

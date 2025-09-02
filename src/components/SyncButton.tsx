@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button, message, Tooltip, Modal } from 'antd';
 import { SyncOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { syncService, type SyncResponse } from '../services';
+import { syncService } from '../services';
+import type { SyncResponse } from '../types';
 
 interface SyncButtonProps {
     size?: 'small' | 'middle' | 'large';

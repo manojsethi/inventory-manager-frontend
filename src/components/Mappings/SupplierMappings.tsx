@@ -29,10 +29,9 @@ import {
 } from '@ant-design/icons';
 import {
     supplierCategoryService,
-    supplierCompanyService,
-    type SupplierCategory,
-    type SupplierCompany
+    supplierCompanyService
 } from '../../services';
+import type { SupplierCategory, SupplierCompany } from '../../types';
 import MappingForms from './MappingForms';
 import { formatNumber } from '../../utils/formatters';
 import { ImageWithFallback } from '../Common';

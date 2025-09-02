@@ -25,7 +25,8 @@ import { Button, Card, Col, Form, Input, InputNumber, message, Row, Space, Uploa
 import { DownOutlined, RightOutlined, EditOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import SortableGroupItem from './SortableGroupItem';
-import { uploadService, ImageType } from '../../services/uploadService';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 import ImageWithFallback from '../Common/ImageWithFallback';
 import VariantSummary from './VariantSummary';
 

@@ -20,8 +20,9 @@ import {
     DeleteOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
-import { type PurchaseBill, type Supplier } from '../../services';
-import { ImageType, uploadService } from '../../services/uploadService';
+import type { PurchaseBill, Supplier } from '../../types';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 
 const { Option } = Select;
 const { TextArea } = Input;

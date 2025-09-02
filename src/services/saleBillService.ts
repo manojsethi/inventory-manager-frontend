@@ -1,17 +1,8 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import type { PaginatedResponse } from '../types/common';
 import type { CreateSaleBillRequest, SaleBill, UpdateSaleBillRequest } from '../types/saleBill';
+import type { SaleBillQueryParams } from '../types/services';
 import { axios } from '../utils';
-
-export interface SaleBillQueryParams {
-    page?: number;
-    limit?: number;
-    customer?: string;
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    search?: string;
-}
 
 
 class SaleBillService {

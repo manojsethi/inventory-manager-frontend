@@ -1,33 +1,10 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    LoginCredentials,
+    LoginResponse,
+    User
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface User {
-    _id: string;
-    email: string;
-    name: string;
-    role: 'admin' | 'manager' | 'employee';
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
-
-export interface LoginResponse {
-    data: {
-        user: User;
-        message?: string;
-    }
-}
-
-export interface AuthState {
-    user: User | null;
-    isAuthenticated: boolean;
-    loading: boolean;
-}
 
 class AuthService {
     async login(credentials: LoginCredentials): Promise<LoginResponse> {

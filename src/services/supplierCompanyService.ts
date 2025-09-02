@@ -1,64 +1,12 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    CreateSupplierCompanyRequest,
+    MarginTier,
+    SupplierCompany,
+    SupplierCompanyQueryParams,
+    UpdateSupplierCompanyRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface MarginTier {
-    minAmount: number;
-    maxAmount?: number;
-    marginPercentage: number;
-    description?: string;
-}
-
-export interface SupplierCompany {
-    _id: string;
-    supplierId: {
-        _id: string;
-        name: string;
-        contactPerson: string;
-        email: string;
-        phone: string;
-    };
-    companyId: {
-        _id: string;
-        name: string;
-        logo?: string;
-        isActive: boolean;
-    };
-    marginTiers: MarginTier[];
-    isActive: boolean;
-    notes?: string;
-    totalOrders: number;
-    totalValue: number;
-    averageMargin: number;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateSupplierCompanyRequest {
-    supplierId: string;
-    companyId: string;
-    marginTiers?: MarginTier[];
-    isActive?: boolean;
-    notes?: string;
-}
-
-export interface UpdateSupplierCompanyRequest extends Partial<CreateSupplierCompanyRequest> { }
-
-export interface SupplierCompanyQueryParams {
-    page?: number;
-    limit?: number;
-    supplierId?: string;
-    companyId?: string;
-    isActive?: boolean;
-}
-
-export interface SupplierCompanyStats {
-    totalRelationships: number;
-    activeRelationships: number;
-    totalOrders: number;
-    totalValue: number;
-    averageMargin: number;
-}
 
 class SupplierCompanyService {
     async getAll(params?: SupplierCompanyQueryParams): Promise<SupplierCompany[]> {

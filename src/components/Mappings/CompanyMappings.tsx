@@ -29,10 +29,9 @@ import {
 } from '@ant-design/icons';
 import {
     companyCategoryService,
-    supplierCompanyService,
-    type CompanyCategory,
-    type SupplierCompany
+    supplierCompanyService
 } from '../../services';
+import type { CompanyCategory, SupplierCompany } from '../../types';
 import MappingForms from './MappingForms';
 import { formatNumber } from '../../utils/formatters';
 

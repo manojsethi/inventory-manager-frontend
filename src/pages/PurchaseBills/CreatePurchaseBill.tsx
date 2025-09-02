@@ -23,8 +23,9 @@ import {
     SaveOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { type Supplier, type Product } from '../../services';
-import { ImageType, uploadService } from '../../services/uploadService';
+import type { Supplier, Product } from '../../types';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 import { purchaseBillService, supplierService } from '../../services';
 import dayjs from 'dayjs';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';

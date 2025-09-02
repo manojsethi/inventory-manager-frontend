@@ -1,28 +1,10 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    Category,
+    CreateCategoryRequest,
+    UpdateCategoryRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface Category {
-    _id: string;
-    name: string;
-    description?: string;
-    logo?: string;
-    isActive: boolean;
-    productCount?: number;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateCategoryRequest {
-    name: string;
-    description?: string;
-    logo?: string;
-    isActive?: boolean;
-}
-
-export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
-    isActive?: boolean;
-}
 
 
 class CategoryService {

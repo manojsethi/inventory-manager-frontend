@@ -23,7 +23,8 @@ import {
     EyeOutlined,
     CheckCircleOutlined,
 } from '@ant-design/icons';
-import { purchaseBillService, supplierService, type PurchaseBill, type Supplier } from '../../services';
+import { purchaseBillService, supplierService } from '../../services';
+import type { PurchaseBill, Supplier } from '../../types';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
@@ -60,7 +61,7 @@ const PurchaseBills: React.FC = () => {
             };
             const response = await purchaseBillService.getAll(params);
             setPurchaseBills(response.data);
-            setTotal(response.total);
+            setTotal(response.total || 0);
         } catch (err) {
             message.error(err instanceof Error ? err.message : 'Failed to fetch purchase bills');
         } finally {

@@ -27,10 +27,9 @@ import {
 } from '@ant-design/icons';
 import {
     supplierCategoryService,
-    companyCategoryService,
-    type SupplierCategory,
-    type CompanyCategory
+    companyCategoryService
 } from '../../services';
+import type { SupplierCategory, CompanyCategory } from '../../types';
 import MappingForms from './MappingForms';
 
 const { Title, Text } = Typography;

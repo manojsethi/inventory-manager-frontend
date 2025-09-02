@@ -1,16 +1,8 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import type { PaginatedResponse } from '../types/common';
 import type { CreateCustomerRequest, Customer, UpdateCustomerRequest } from '../types/customer';
+import type { CustomerQueryParams } from '../types/services';
 import { axios } from '../utils';
-
-export interface CustomerQueryParams {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isActive?: boolean;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-}
 
 
 class CustomerService {

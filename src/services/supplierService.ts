@@ -1,68 +1,12 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type { PaginatedResponse } from '../types/common';
+import type {
+    CreateSupplierRequest,
+    Supplier,
+    SupplierQueryParams,
+    UpdateSupplierRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface Supplier {
-    _id: string;
-    name: string;
-    contactPerson: string;
-    email: string;
-    phone: string;
-    address: {
-        street: string;
-        city: string;
-        state: string;
-        zipCode: string;
-        country: string;
-    };
-    isActive: boolean;
-    taxId?: string;
-    paymentTerms?: number;
-    creditLimit?: number;
-    currentBalance?: number;
-    notes?: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateSupplierRequest {
-    name: string;
-    contactPerson: string;
-    email: string;
-    phone: string;
-    address: {
-        street: string;
-        city: string;
-        state: string;
-        zipCode: string;
-        country: string;
-    };
-    taxId?: string;
-    paymentTerms?: number;
-    creditLimit?: number;
-    notes?: string;
-}
-
-export interface UpdateSupplierRequest extends Partial<CreateSupplierRequest> {
-    isActive?: boolean;
-}
-
-export interface SupplierQueryParams {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isActive?: boolean;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-    data: T[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
 
 class SupplierService {
     async getAll(params?: SupplierQueryParams): Promise<PaginatedResponse<Supplier>> {

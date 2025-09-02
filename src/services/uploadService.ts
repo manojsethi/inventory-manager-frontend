@@ -1,33 +1,6 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type { ImageType, UploadedImage } from '../types/services';
 import { axios } from '../utils';
-
-// Image Types Enum
-export enum ImageType {
-    PRODUCT_TYPE = 'product_type',
-    PRODUCT_TYPE_CATEGORY = 'product_type_category',
-    PRODUCT_BRAND = 'product_brand',
-    SUPPLIER = 'supplier',
-    COMPANY = 'company',
-    PRODUCT = 'product',
-    PRODUCT_VARIANTS = 'product_variants',
-    PURCHASE_BILL = 'purchase_bill',
-    SALE_BILL = 'sale_bill'
-}
-
-// Types
-export interface UploadedImage {
-    url: string;
-    key: string;
-    filename: string;
-    size: number;
-    mimetype: string;
-}
-
-export interface UploadResponse {
-    success: boolean;
-    data: UploadedImage | UploadedImage[];
-    message: string;
-}
 
 class UploadService {
     async uploadSingle(file: File, imageType: ImageType): Promise<UploadedImage> {

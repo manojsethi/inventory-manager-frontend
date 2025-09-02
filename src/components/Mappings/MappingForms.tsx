@@ -14,10 +14,9 @@ import {
     companyCategoryService,
     supplierCompanyService,
     categoryService,
-    supplierService,
-    type Category,
-    type Supplier,
+    supplierService
 } from '../../services';
+import type { Category, Supplier } from '../../types';
 
 const { TextArea } = Input;
 const { Option } = Select;

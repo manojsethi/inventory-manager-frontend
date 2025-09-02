@@ -1,18 +1,5 @@
+import type { SyncResponse } from '../types/services';
 import axios from '../utils/axios';
-
-export interface SyncResponse {
-    success: boolean;
-    message: string;
-    data?: {
-        updatedCounts: {
-            products: number;
-            categories: number;
-            suppliers: number;
-            companies: number;
-        };
-        timestamp: string;
-    };
-}
 
 class SyncService {
     /**

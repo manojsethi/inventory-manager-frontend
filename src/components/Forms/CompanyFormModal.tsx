@@ -14,8 +14,10 @@ import {
     UploadOutlined,
     DeleteOutlined,
 } from '@ant-design/icons';
-import { companyService, type Company, type CreateCompanyRequest, type UpdateCompanyRequest } from '../../services';
-import { uploadService, ImageType } from '../../services/uploadService';
+import { companyService } from '../../services';
+import type { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../../types';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 import { ImageWithFallback } from '../Common';
 
 const { Text } = Typography;

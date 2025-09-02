@@ -25,8 +25,10 @@ import {
     UploadOutlined,
     DeleteOutlined as DeleteIcon,
 } from '@ant-design/icons';
-import { productBrandService, type ProductBrand } from '../../services';
-import { uploadService, ImageType } from '../../services/uploadService';
+import { productBrandService } from '../../services';
+import type { ProductBrand } from '../../types';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
 
 const { Title } = Typography;

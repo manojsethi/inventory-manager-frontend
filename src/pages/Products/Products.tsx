@@ -22,7 +22,8 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
-import { productBrandService, productService, productTypeService, type Product, type ProductBrand, type ProductType } from '../../services';
+import { productBrandService, productService, productTypeService } from '../../services';
+import type { Product, ProductBrand, ProductType } from '../../types';
 
 const { Title } = Typography;
 const { Option } = Select;

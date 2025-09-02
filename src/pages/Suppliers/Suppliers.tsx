@@ -27,7 +27,8 @@ import {
     MailOutlined,
     PhoneOutlined,
 } from '@ant-design/icons';
-import { supplierService, type Supplier } from '../../services';
+import { supplierService } from '../../services';
+import type { Supplier } from '../../types';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -62,7 +63,7 @@ const Suppliers: React.FC = () => {
 
             const response = await supplierService.getAll(params);
             setSuppliers(response.data);
-            setTotal(response.total);
+            setTotal(response.total || 0);
         } catch (err) {
             message.error(err instanceof Error ? err.message : 'Failed to fetch suppliers');
         } finally {

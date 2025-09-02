@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Select, message, Spin, Image } from 'antd';
-import { productService, type Product } from '../../services';
+import { productService } from '../../services';
+import type { Product } from '../../types';
 
 const { Option } = Select;
 

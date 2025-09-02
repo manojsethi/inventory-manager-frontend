@@ -8,7 +8,6 @@ import {
     Col,
     Typography,
     message,
-    Space,
     Divider,
     Select,
     InputNumber,
@@ -16,17 +15,12 @@ import {
     Modal,
     Spin,
     Table,
-    Popconfirm,
-    Tooltip,
     Upload,
 } from 'antd';
 import {
     PlusOutlined,
-    DeleteOutlined,
     SaveOutlined,
     ArrowLeftOutlined,
-    UserOutlined,
-    SearchOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -34,9 +28,9 @@ import { saleBillService } from '../../services/saleBillService';
 import type { SaleBill, UpdateSaleBillRequest } from '../../types/saleBill';
 import type { SaleBillItem, SaleBillCustomer } from '../../types/saleBill';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
-import VariantSelector from '../../components/Products/VariantSelector';
 import dayjs from 'dayjs';
-import { uploadService, ImageType } from '../../services/uploadService';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 
 const { Title, Text } = Typography;
 const { Option } = Select;

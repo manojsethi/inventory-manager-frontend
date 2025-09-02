@@ -5,7 +5,8 @@ import {
     UserOutlined,
     AlertOutlined,
 } from '@ant-design/icons';
-import { dashboardService, type DashboardStats } from '../services';
+import { dashboardService } from '../services';
+import type { DashboardStats } from '../types';
 import { formatNumber } from '../utils/formatters';
 import SyncButton from '../components/SyncButton';
 

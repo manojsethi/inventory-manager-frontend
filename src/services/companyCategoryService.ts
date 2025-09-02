@@ -1,48 +1,12 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    CompanyCategory,
+    CompanyCategoryQueryParams,
+    CompanyCategoryStats,
+    CreateCompanyCategoryRequest,
+    UpdateCompanyCategoryRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface CompanyCategory {
-    _id: string;
-    companyId: {
-        _id: string;
-        name: string;
-        logo?: string;
-        isActive: boolean;
-    };
-    categoryId: {
-        _id: string;
-        name: string;
-        description?: string;
-        logo?: string;
-    };
-    notes?: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateCompanyCategoryRequest {
-    companyId: string;
-    categoryId: string;
-    notes?: string;
-}
-
-export interface UpdateCompanyCategoryRequest extends Partial<CreateCompanyCategoryRequest> { }
-
-export interface CompanyCategoryQueryParams {
-    page?: number;
-    limit?: number;
-    companyId?: string;
-    categoryId?: string;
-}
-
-export interface CompanyCategoryStats {
-    totalRelationships: number;
-    activeCompanies: number;
-    activeCategories: number;
-    averageRelationshipsPerCompany: number;
-    averageRelationshipsPerCategory: number;
-}
 
 class CompanyCategoryService {
     async getAll(params?: CompanyCategoryQueryParams): Promise<CompanyCategory[]> {

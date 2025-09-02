@@ -14,7 +14,7 @@ import {
 import {
     AttributeFieldType
 } from '../constants/attributeConfigs';
-import { toNamePathStr } from 'antd/es/form/hooks/useForm';
+
 
 const { TextArea } = Input;
 

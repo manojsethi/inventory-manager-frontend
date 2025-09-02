@@ -1,49 +1,12 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type {
+    CreateSupplierCategoryRequest,
+    SupplierCategory,
+    SupplierCategoryQueryParams,
+    SupplierCategoryStats,
+    UpdateSupplierCategoryRequest
+} from '../types/services';
 import { axios } from '../utils';
-
-// Types
-export interface SupplierCategory {
-    _id: string;
-    supplierId: {
-        _id: string;
-        name: string;
-        contactPerson: string;
-        email: string;
-        phone: string;
-    };
-    categoryId: {
-        _id: string;
-        name: string;
-        description?: string;
-        logo?: string;
-    };
-    notes?: string;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateSupplierCategoryRequest {
-    supplierId: string;
-    categoryId: string;
-    notes?: string;
-}
-
-export interface UpdateSupplierCategoryRequest extends Partial<CreateSupplierCategoryRequest> { }
-
-export interface SupplierCategoryQueryParams {
-    page?: number;
-    limit?: number;
-    supplierId?: string;
-    categoryId?: string;
-}
-
-export interface SupplierCategoryStats {
-    totalRelationships: number;
-    activeSuppliers: number;
-    activeCategories: number;
-    averageRelationshipsPerSupplier: number;
-    averageRelationshipsPerCategory: number;
-}
 
 class SupplierCategoryService {
     async getAll(params?: SupplierCategoryQueryParams): Promise<SupplierCategory[]> {

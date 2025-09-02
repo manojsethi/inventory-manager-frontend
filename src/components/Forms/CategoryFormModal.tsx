@@ -14,8 +14,10 @@ import {
     UploadOutlined,
     DeleteOutlined,
 } from '@ant-design/icons';
-import { categoryService, type Category, type CreateCategoryRequest, type UpdateCategoryRequest } from '../../services';
-import { uploadService, ImageType } from '../../services/uploadService';
+import { categoryService } from '../../services';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../types';
+import { uploadService } from '../../services/uploadService';
+import { ImageType } from '../../types';
 import { ImageWithFallback } from '../Common';
 
 const { TextArea } = Input;
