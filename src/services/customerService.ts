@@ -1,38 +1,7 @@
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
+import type { PaginatedResponse } from '../types/common';
+import type { CreateCustomerRequest, Customer, UpdateCustomerRequest } from '../types/customer';
 import { axios } from '../utils';
-
-// Types
-export interface Customer {
-    _id: string;
-    name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-    country?: string;
-    notes?: string;
-    isActive: boolean;
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-export interface CreateCustomerRequest {
-    name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-    country?: string;
-    notes?: string;
-}
-
-export interface UpdateCustomerRequest extends Partial<CreateCustomerRequest> {
-    isActive?: boolean;
-}
 
 export interface CustomerQueryParams {
     page?: number;
@@ -43,13 +12,6 @@ export interface CustomerQueryParams {
     sortOrder?: 'asc' | 'desc';
 }
 
-export interface PaginatedResponse<T> {
-    data: T[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
 
 class CustomerService {
     async getAll(params?: CustomerQueryParams): Promise<PaginatedResponse<Customer>> {

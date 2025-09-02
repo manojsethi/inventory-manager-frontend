@@ -8,14 +8,13 @@ import {
     useSensors,
 } from '@dnd-kit/core';
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Form, Input, Switch, Tooltip, Badge } from 'antd';
+import { Button, Form, Input, Switch, Tooltip } from 'antd';
 import React from 'react';
 import { ATTRIBUTE_FIELD_TYPES, AttributeFieldType } from '../../constants/attributeConfigs';
 import { renderAttributeField } from '../../utils/attributeFieldRenderer';

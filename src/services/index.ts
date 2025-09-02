@@ -10,7 +10,7 @@ export {
     default as companyService, type Company, type CompanyQueryParams, type CreateCompanyRequest, type UpdateCompanyRequest
 } from './companyService';
 export {
-    default as customerService, type CreateCustomerRequest, type Customer, type CustomerQueryParams, type UpdateCustomerRequest
+    default as customerService
 } from './customerService';
 export { default as dashboardService, type DashboardStats, type DashboardSummary } from './dashboardService';
 export {
@@ -37,6 +37,6 @@ export {
 } from './supplierService';
 export { default as syncService, type SyncResponse } from './syncService';
 export {
-    default as uploadService, type UploadResponse, type UploadedImage
+    default as uploadService, type UploadedImage, type UploadResponse
 } from './uploadService';
 

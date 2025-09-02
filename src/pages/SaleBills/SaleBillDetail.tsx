@@ -28,7 +28,8 @@ import {
     FileTextOutlined,
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { saleBillService, SaleBill } from '../../services/saleBillService';
+import { saleBillService } from '../../services/saleBillService';
+import type { SaleBill } from '../../types/saleBill';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;

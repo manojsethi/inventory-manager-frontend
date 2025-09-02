@@ -30,7 +30,9 @@ import {
     UploadOutlined,
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { saleBillService, SaleBill, UpdateSaleBillRequest } from '../../services/saleBillService';
+import { saleBillService } from '../../services/saleBillService';
+import type { SaleBill, UpdateSaleBillRequest } from '../../types/saleBill';
+import type { SaleBillItem, SaleBillCustomer } from '../../types/saleBill';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';
 import dayjs from 'dayjs';
@@ -40,23 +42,7 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-interface Customer {
-    _id: string;
-    name: string;
-    phone?: string;
-    email?: string;
-}
-
-interface SaleBillItem {
-    productId?: string;
-    variantId?: string;
-    sku: string;
-    name: string;
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-    notes?: string;
-}
+// Types centralized in services; using imports above
 
 interface ReturnItem {
     variantId?: string;
@@ -83,8 +69,8 @@ const EditSaleBill: React.FC = () => {
 
     // Customer search states
     const [customerSearchText, setCustomerSearchText] = useState('');
-    const [customers, setCustomers] = useState<Customer[]>([]);
-    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [customers, setCustomers] = useState<SaleBillCustomer[]>([]);
+    const [selectedCustomer, setSelectedCustomer] = useState<SaleBillCustomer | null>(null);
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
 
     // Add customer modal states
@@ -931,7 +917,7 @@ const EditSaleBill: React.FC = () => {
                 }}
                 footer={null}
                 width={500}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={newCustomerForm}
@@ -990,7 +976,7 @@ const EditSaleBill: React.FC = () => {
                 }}
                 footer={null}
                 width={1000}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={returnForm}

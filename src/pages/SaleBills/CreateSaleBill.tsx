@@ -8,16 +8,12 @@ import {
     Col,
     Typography,
     message,
-    Space,
-    Divider,
     Select,
     InputNumber,
     DatePicker,
     Modal,
-    Spin,
-    Table,
     Popconfirm,
-    Tooltip,
+    Divider,
     Upload,
 } from 'antd';
 import {
@@ -26,11 +22,13 @@ import {
     SaveOutlined,
     ArrowLeftOutlined,
     UserOutlined,
-    SearchOutlined,
     UploadOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { saleBillService, CreateSaleBillRequest } from '../../services/saleBillService';
+import { saleBillService } from '../../services/saleBillService';
+import type { CreateSaleBillRequest } from '../../types/saleBill';
+import type { SaleBillItem } from '../../types/saleBill';
+import type { SaleBillCustomer as Customer } from '../../types/saleBill';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';
 import dayjs from 'dayjs';
@@ -39,23 +37,7 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-interface Customer {
-    _id: string;
-    name: string;
-    phone?: string;
-    email?: string;
-}
-
-interface SaleBillItem {
-    productId?: string;
-    variantId?: string;
-    sku: string;
-    name: string;
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-    notes?: string;
-}
+// Types centralized in services; using imports above
 
 const CreateSaleBill: React.FC = () => {
     const navigate = useNavigate();
@@ -162,7 +144,9 @@ const CreateSaleBill: React.FC = () => {
             name: '',
             quantity: 1,
             unitPrice: 0,
+            unitCost: 0,
             totalPrice: 0,
+            totalCost: 0,
         };
         setItems([...items, newItem]);
     };
@@ -637,7 +621,7 @@ const CreateSaleBill: React.FC = () => {
                 }}
                 footer={null}
                 width={500}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={newCustomerForm}

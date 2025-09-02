@@ -9,16 +9,16 @@ import {
     Typography,
     Popconfirm,
     message,
-    Tag,
+
     Tooltip,
     Modal,
     Form,
     Row,
     Col,
-    Spin,
+
     Badge,
     Avatar,
-    Divider,
+
 } from 'antd';
 import {
     PlusOutlined,
@@ -32,7 +32,8 @@ import {
     EyeOutlined,
     ReloadOutlined,
 } from '@ant-design/icons';
-import { customerService, Customer, CreateCustomerRequest, UpdateCustomerRequest } from '../../services/customerService';
+import { customerService } from '../../services/customerService';
+import type { Customer, CreateCustomerRequest, UpdateCustomerRequest } from '../../types/customer';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -357,7 +358,7 @@ const Customers: React.FC = () => {
                 }}
                 footer={null}
                 width={600}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}
@@ -469,7 +470,7 @@ const Customers: React.FC = () => {
                 }}
                 footer={null}
                 width={600}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}
