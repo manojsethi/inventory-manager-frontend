@@ -16,7 +16,17 @@ const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchDashboardData();
+        //fetchDashboardData();
+        setStats({
+            totalSales: 100,
+            totalRevenue: 1000,
+            totalProfit: 100,
+            totalCustomers: 10,
+            lowStockItems: 10,
+            topSellingItems: [],
+            recentSales: [],
+        });
+        setLoading(false);
     }, []);
 
     const fetchDashboardData = async () => {

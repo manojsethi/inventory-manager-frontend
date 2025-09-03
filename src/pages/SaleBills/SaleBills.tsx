@@ -249,7 +249,6 @@ const SaleBills: React.FC = () => {
                         type="primary"
                         icon={<PlusOutlined />}
                         onClick={() => navigate('/sale-bills/create')}
-                        size="large"
                     >
                         Create Sale Bill
                     </Button>
