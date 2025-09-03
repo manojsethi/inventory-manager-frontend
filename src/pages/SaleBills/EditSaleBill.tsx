@@ -488,94 +488,173 @@ const EditSaleBill: React.FC = () => {
                     layout="vertical"
                     onFinish={handleSubmit}
                 >
-                    <Row gutter={24}>
-                        <Col span={16}>
-                            <Card title="Sale Bill Details" className="mb-6">
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            label="Bill Number"
-                                        >
-                                            <Input
-                                                value={saleBill.billNumber}
-                                                disabled
-                                                className="bg-gray-50"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="billDate"
-                                            label="Bill Date"
-                                            rules={[
-                                                { required: true, message: 'Please select bill date' }
-                                            ]}
-                                        >
-                                            <DatePicker
-                                                style={{ width: '100%' }}
-                                                format="DD/MM/YYYY"
-                                                disabled
-                                                className="bg-gray-50"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            label="Customer"
-                                            required
-                                        >
-                                            <div className="space-y-2">
-                                                <Select
-                                                    showSearch
-                                                    placeholder="Search customer by name or phone"
-                                                    value={selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : undefined}
-                                                    onSearch={handleCustomerSearchChange}
-                                                    onChange={handleCustomerSelect}
-                                                    loading={customerSearchLoading}
-                                                    filterOption={false}
-                                                    notFoundContent={
-                                                        customerSearchText.length >= 2 ? (
-                                                            <div className="disabled">
-                                                                <Text type="secondary">No customers found</Text>
-                                                                <Button
-                                                                    type="link"
-                                                                    size="small"
-                                                                    onClick={() => setIsAddCustomerModalVisible(true)}
-                                                                >
-                                                                    Add New Customer
-                                                                </Button>
-                                                            </div>
-                                                        ) : null
-                                                    }
-                                                    optionLabelProp="label"
-                                                    disabled
-                                                    className="bg-gray-50"
-                                                >
-                                                    {customers.map(customer => (
-                                                        <Option key={customer._id} value={customer._id} label={`${customer.name} ${customer.phone}`}>
-                                                            {customer.name} {customer.phone}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
+                    <Row gutter={24} className="mb-6">
+                        <Col span={8}>
+                            <Card title="Sale Bill Details" className="h-full">
+                                <Form.Item
+                                    label="Bill Number"
+                                >
+                                    <Input
+                                        value={saleBill.billNumber}
+                                        disabled
+                                        className="bg-gray-50"
+                                    />
+                                </Form.Item>
 
-                                            </div>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="status"
-                                            label="Status"
+                                <Form.Item
+                                    name="billDate"
+                                    label="Bill Date"
+                                    rules={[
+                                        { required: true, message: 'Please select bill date' }
+                                    ]}
+                                >
+                                    <DatePicker
+                                        style={{ width: '100%' }}
+                                        format="DD/MM/YYYY"
+                                        disabled
+                                        className="bg-gray-50"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="Customer"
+                                    required
+                                >
+                                    <div className="space-y-2">
+                                        <Select
+                                            showSearch
+                                            placeholder="Search customer by name or phone"
+                                            value={selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : undefined}
+                                            onSearch={handleCustomerSearchChange}
+                                            onChange={handleCustomerSelect}
+                                            loading={customerSearchLoading}
+                                            filterOption={false}
+                                            notFoundContent={
+                                                customerSearchText.length >= 2 ? (
+                                                    <div className="p-2">
+                                                        <Text type="secondary">No customers found</Text>
+                                                        <Button
+                                                            type="link"
+                                                            size="small"
+                                                            onClick={() => setIsAddCustomerModalVisible(true)}
+                                                        >
+                                                            Add New Customer
+                                                        </Button>
+                                                    </div>
+                                                ) : null
+                                            }
+                                            optionLabelProp="label"
+                                            disabled
+                                            className="bg-gray-50 text-left"
                                         >
-                                            <Select onChange={(value) => setCurrentStatus(value)}>
-                                                <Option value="paid">Paid</Option>
-                                                <Option value="cancelled">Cancelled</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
+                                            {customers.map(customer => (
+                                                <Option key={customer._id} value={customer._id} label={`${customer.name} - Phone: ${customer.phone}`}>
+                                                    <div className="flex justify-between items-center">
+                                                        <span>{customer.name}</span>
+                                                        <span className="text-blue-600 font-semibold">Phone: {customer.phone}</span>
+                                                    </div>
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                </Form.Item>
+
                             </Card>
+                        </Col>
+
+                        <Col span={8}>
+                            <Card title="Bill Summary" className="h-full">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between">
+                                        <Text>Subtotal:</Text>
+                                        <Text strong>₹{subtotal.toFixed(2)}</Text>
+                                    </div>
+
+                                    <Form.Item
+                                        name="taxAmount"
+                                        label="Tax Amount"
+                                    >
+                                        <InputNumber
+                                            min={0}
+                                            prefix="₹"
+                                            style={{ width: '100%' }}
+                                            onChange={() => handleAmountChange()}
+                                            disabled
+                                            className="bg-gray-50"
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        name="shippingAmount"
+                                        label="Shipping Amount"
+                                    >
+                                        <InputNumber
+                                            min={0}
+                                            prefix="₹"
+                                            style={{ width: '100%' }}
+                                            onChange={() => handleAmountChange()}
+                                            disabled
+                                            className="bg-gray-50"
+                                        />
+                                    </Form.Item>
+
+                                    <Divider />
+
+                                    <div className="flex justify-between text-lg">
+                                        <Text strong>Total Amount:</Text>
+                                        <Text strong className="text-green-600">
+                                            ₹{totalAmount.toFixed(2)}
+                                        </Text>
+                                    </div>
+
+                                    {saleBill?.realEffectiveTotalAmount && saleBill.realEffectiveTotalAmount !== totalAmount && (
+                                        <div className="flex justify-between text-lg">
+                                            <Text strong>Real Effective Total:</Text>
+                                            <Text strong className="text-blue-600">
+                                                ₹{saleBill.realEffectiveTotalAmount.toFixed(2)}
+                                            </Text>
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
+                        </Col>
+
+                        <Col span={8}>
+                            <Card title="Payment Details" className="h-full">
+                                <Form.Item
+                                    name="status"
+                                    label="Status"
+                                >
+                                    <Select onChange={(value) => setCurrentStatus(value)}>
+                                        <Option value="paid">Paid</Option>
+                                        <Option value="cancelled">Cancelled</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="paymentMethod"
+                                    label="Payment Method"
+                                >
+                                    <Select>
+                                        <Option value="cash">Cash</Option>
+                                        <Option value="card">Card</Option>
+                                        <Option value="upi">UPI</Option>
+                                        <Option value="bank_transfer">Bank Transfer</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="paymentReference"
+                                    label="Payment Reference"
+                                >
+                                    <Input placeholder="Transaction ID, reference number, etc." />
+                                </Form.Item>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={24}>
+                        <Col span={24}>
 
                             <Card title="Bill Items" className="mb-6">
                                 {currentStatus === 'paid' && (
@@ -762,84 +841,10 @@ const EditSaleBill: React.FC = () => {
                                 </Card>
                             )}
                         </Col>
+                    </Row>
 
-                        <Col span={8}>
-                            <Card title="Bill Summary" className="mb-6">
-                                <div className="space-y-4">
-                                    <div className="flex justify-between">
-                                        <Text>Subtotal:</Text>
-                                        <Text strong>₹{subtotal.toFixed(2)}</Text>
-                                    </div>
-
-                                    <Form.Item
-                                        name="taxAmount"
-                                        label="Tax Amount"
-                                    >
-                                        <InputNumber
-                                            min={0}
-                                            prefix="₹"
-                                            style={{ width: '100%' }}
-                                            onChange={() => handleAmountChange()}
-                                            disabled
-                                            className="bg-gray-50"
-                                        />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        name="shippingAmount"
-                                        label="Shipping Amount"
-                                    >
-                                        <InputNumber
-                                            min={0}
-                                            prefix="₹"
-                                            style={{ width: '100%' }}
-                                            onChange={() => handleAmountChange()}
-                                            disabled
-                                            className="bg-gray-50"
-                                        />
-                                    </Form.Item>
-
-                                    <Divider />
-
-                                    <div className="flex justify-between text-lg">
-                                        <Text strong>Total Amount:</Text>
-                                        <Text strong className="text-green-600">
-                                            ₹{totalAmount.toFixed(2)}
-                                        </Text>
-                                    </div>
-
-                                    {saleBill?.realEffectiveTotalAmount && saleBill.realEffectiveTotalAmount !== totalAmount && (
-                                        <div className="flex justify-between text-lg">
-                                            <Text strong>Real Effective Total:</Text>
-                                            <Text strong className="text-blue-600">
-                                                ₹{saleBill.realEffectiveTotalAmount.toFixed(2)}
-                                            </Text>
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
-
-                            <Card title="Payment Details" className="mb-6">
-                                <Form.Item
-                                    name="paymentMethod"
-                                    label="Payment Method"
-                                >
-                                    <Select>
-                                        <Option value="cash">Cash</Option>
-                                        <Option value="card">Card</Option>
-                                        <Option value="upi">UPI</Option>
-                                        <Option value="bank_transfer">Bank Transfer</Option>
-                                    </Select>
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="paymentReference"
-                                    label="Payment Reference"
-                                >
-                                    <Input placeholder="Transaction ID, reference number, etc." />
-                                </Form.Item>
-                            </Card>
-
+                    <Row gutter={24}>
+                        <Col span={24}>
                             <Card title="Additional Information">
                                 <Form.Item
                                     name="notes"
@@ -881,10 +886,9 @@ const EditSaleBill: React.FC = () => {
                         </Col>
                     </Row>
 
-                    <div className="flex justify-end space-x-4">
+                    <div className="flex justify-end space-x-4 mt-4">
                         <Button
                             onClick={() => navigate('/sale-bills')}
-                            size="large"
                         >
                             Cancel
                         </Button>
@@ -893,7 +897,6 @@ const EditSaleBill: React.FC = () => {
                             icon={<SaveOutlined />}
                             htmlType="submit"
                             loading={loading}
-                            size="large"
                         >
                             Update Sale Bill
                         </Button>
@@ -1106,7 +1109,7 @@ const EditSaleBill: React.FC = () => {
                     </div>
                 </Form>
             </Modal>
-        </div>
+        </div >
     );
 };
 

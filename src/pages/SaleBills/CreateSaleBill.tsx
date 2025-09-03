@@ -74,12 +74,12 @@ const CreateSaleBill: React.FC = () => {
 
     // Calculate totals when items change
     useEffect(() => {
-        const newSubtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+        const newSubtotal = Math.round((items.reduce((sum, item) => sum + item.totalPrice, 0)) * 100) / 100;
         setSubtotal(newSubtotal);
 
         const taxAmount = form.getFieldValue('taxAmount') || 0;
         const shippingAmount = form.getFieldValue('shippingAmount') || 0;
-        setTotalAmount(newSubtotal + taxAmount + shippingAmount);
+        setTotalAmount(Math.round((newSubtotal + taxAmount + shippingAmount) * 100) / 100);
     }, [items, form]);
 
     // Search customers
@@ -178,7 +178,7 @@ const CreateSaleBill: React.FC = () => {
             sku: variant.sku,
             name: `${newItems[index].name} - ${variant.name}`,
             unitPrice: variant.currentPrice || 0,
-            totalPrice: (variant.currentPrice || 0) * newItems[index].quantity,
+            totalPrice: Math.round(((variant.currentPrice || 0) * newItems[index].quantity) * 100) / 100,
         };
         setItems(newItems);
     };
@@ -189,7 +189,7 @@ const CreateSaleBill: React.FC = () => {
         newItems[index] = {
             ...newItems[index],
             quantity: value,
-            totalPrice: value * newItems[index].unitPrice,
+            totalPrice: Math.round((value * newItems[index].unitPrice) * 100) / 100,
         };
         setItems(newItems);
     };
@@ -200,7 +200,7 @@ const CreateSaleBill: React.FC = () => {
         newItems[index] = {
             ...newItems[index],
             unitPrice: value,
-            totalPrice: value * newItems[index].quantity,
+            totalPrice: Math.round((value * newItems[index].quantity) * 100) / 100,
         };
         setItems(newItems);
     };
@@ -209,7 +209,7 @@ const CreateSaleBill: React.FC = () => {
     const handleAmountChange = () => {
         const taxAmount = form.getFieldValue('taxAmount') || 0;
         const shippingAmount = form.getFieldValue('shippingAmount') || 0;
-        setTotalAmount(subtotal + taxAmount + shippingAmount);
+        setTotalAmount(Math.round((subtotal + taxAmount + shippingAmount) * 100) / 100);
     };
 
     // Submit form
@@ -281,36 +281,31 @@ const CreateSaleBill: React.FC = () => {
                         paymentMethod: 'cash',
                     }}
                 >
-                    <Row gutter={24}>
-                        <Col span={16}>
-                            <Card title="Sale Bill Details" className="mb-6">
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            label="Bill Number"
-                                        >
-                                            <Input
-                                                value={billNumber}
-                                                disabled
-                                                className="bg-gray-50"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Form.Item
-                                            name="billDate"
-                                            label="Bill Date"
-                                            rules={[
-                                                { required: true, message: 'Please select bill date' }
-                                            ]}
-                                        >
-                                            <DatePicker
-                                                style={{ width: '100%' }}
-                                                format="DD/MM/YYYY"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
+                    <Row gutter={24} className="mb-6">
+                        <Col span={8}>
+                            <Card title="Sale Bill Details" className="h-full">
+                                <Form.Item
+                                    label="Bill Number"
+                                >
+                                    <Input
+                                        value={billNumber}
+                                        disabled
+                                        className="bg-gray-50"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="billDate"
+                                    label="Bill Date"
+                                    rules={[
+                                        { required: true, message: 'Please select bill date' }
+                                    ]}
+                                >
+                                    <DatePicker
+                                        style={{ width: '100%' }}
+                                        format="DD/MM/YYYY"
+                                    />
+                                </Form.Item>
 
                                 <Form.Item
                                     label="Customer"
@@ -320,7 +315,7 @@ const CreateSaleBill: React.FC = () => {
                                         <Select
                                             showSearch
                                             placeholder="Search customer by name or phone"
-                                            value={selectedCustomer ? `${selectedCustomer.name} ${selectedCustomer.phone}` : undefined}
+                                            value={selectedCustomer ? selectedCustomer._id : undefined}
                                             onSearch={handleCustomerSearchChange}
                                             onChange={handleCustomerSelect}
                                             loading={customerSearchLoading}
@@ -340,165 +335,26 @@ const CreateSaleBill: React.FC = () => {
                                                 ) : null
                                             }
                                             optionLabelProp="label"
+                                            dropdownStyle={{ minWidth: '300px' }}
+                                            labelInValue={false}
+                                            className="text-left"
                                         >
                                             {customers.map(customer => (
-                                                <Option key={customer._id} value={customer._id} label={`${customer.name} ${customer.phone}`}>
-                                                    {customer.name} {customer.phone}
+                                                <Option key={customer._id} value={customer._id} label={`${customer.name} - Phone: ${customer.phone}`}>
+                                                    <div className="flex justify-between items-center">
+                                                        <span>{customer.name}</span>
+                                                        <span className="text-blue-600 font-semibold">Phone: {customer.phone}</span>
+                                                    </div>
                                                 </Option>
                                             ))}
                                         </Select>
-                                        {selectedCustomer && (
-                                            <div className="p-3 bg-blue-50 rounded border">
-                                                <div className="flex items-center">
-                                                    <UserOutlined className="mr-2 text-blue-600" />
-                                                    <div>
-                                                        <div className="font-medium">{selectedCustomer.name}</div>
-                                                        {selectedCustomer.phone && (
-                                                            <div className="text-sm text-gray-500">{selectedCustomer.phone}</div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
                                 </Form.Item>
-                            </Card>
-
-                            <Card title="Bill Items" className="mb-6">
-                                <div className="mb-4">
-                                    <Button
-                                        type="dashed"
-                                        icon={<PlusOutlined />}
-                                        onClick={handleAddItem}
-                                        block
-                                    >
-                                        Add Item
-                                    </Button>
-                                </div>
-
-                                {items.map((item, index) => (
-                                    <div key={index} className="border rounded-lg p-4 mb-4">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <Text strong>Item {index + 1}</Text>
-                                            <Popconfirm
-                                                title="Remove Item"
-                                                description="Are you sure you want to remove this item?"
-                                                onConfirm={() => handleRemoveItem(index)}
-                                                okText="Yes"
-                                                cancelText="No"
-                                            >
-                                                <Button
-                                                    type="text"
-                                                    icon={<DeleteOutlined />}
-                                                    danger
-                                                    size="small"
-                                                />
-                                            </Popconfirm>
-                                        </div>
-
-                                        <Row gutter={16}>
-                                            <Col span={12}>
-                                                <Form.Item
-                                                    label="Product"
-                                                    required
-                                                >
-                                                    <ProductAutocomplete
-                                                        onChange={(value, product) => product && handleProductSelect(product, index)}
-                                                        style={{ width: '100%' }}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Form.Item
-                                                    label="Variant"
-                                                >
-                                                    <VariantSelector
-                                                        product={item.productId ? { _id: item.productId } as any : null}
-                                                        onChange={(variantId, variant) => handleVariantSelect(variant, index)}
-                                                        style={{ width: '100%' }}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-
-                                        <Row gutter={16}>
-                                            <Col span={8}>
-                                                <Form.Item
-                                                    label="SKU"
-                                                >
-                                                    <Input
-                                                        value={item.sku}
-                                                        disabled
-                                                        className="bg-gray-50"
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={8}>
-                                                <Form.Item
-                                                    label="Quantity"
-                                                    required
-                                                >
-                                                    <InputNumber
-                                                        value={item.quantity}
-                                                        onChange={(value) => handleQuantityChange(value || 1, index)}
-                                                        min={1}
-                                                        style={{ width: '100%' }}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={8}>
-                                                <Form.Item
-                                                    label="Unit Price"
-                                                    required
-                                                >
-                                                    <InputNumber
-                                                        value={item.unitPrice}
-                                                        onChange={(value) => handleUnitPriceChange(value || 0, index)}
-                                                        min={0}
-                                                        prefix="₹"
-                                                        style={{ width: '100%' }}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-
-                                        <Row gutter={16}>
-                                            <Col span={12}>
-                                                <Form.Item
-                                                    label="Total Price"
-                                                >
-                                                    <InputNumber
-                                                        value={item.totalPrice}
-                                                        disabled
-                                                        prefix="₹"
-                                                        style={{ width: '100%' }}
-                                                        className="bg-gray-50"
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Form.Item
-                                                    label="Notes"
-                                                >
-                                                    <Input
-                                                        value={item.notes}
-                                                        onChange={(e) => {
-                                                            const newItems = [...items];
-                                                            newItems[index].notes = e.target.value;
-                                                            setItems(newItems);
-                                                        }}
-                                                        placeholder="Optional notes"
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                ))}
                             </Card>
                         </Col>
 
                         <Col span={8}>
-                            <Card title="Bill Summary" className="mb-6">
+                            <Card title="Bill Summary" className="h-full">
                                 <div className="space-y-4">
                                     <div className="flex justify-between">
                                         <Text>Subtotal:</Text>
@@ -539,8 +395,10 @@ const CreateSaleBill: React.FC = () => {
                                     </div>
                                 </div>
                             </Card>
+                        </Col>
 
-                            <Card title="Payment Details" className="mb-6">
+                        <Col span={8}>
+                            <Card title="Payment Details" className="h-full">
                                 <Form.Item
                                     name="paymentMethod"
                                     label="Payment Method"
@@ -560,6 +418,112 @@ const CreateSaleBill: React.FC = () => {
                                     <Input placeholder="Transaction ID, reference number, etc." />
                                 </Form.Item>
                             </Card>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={24}>
+                        <Col span={24}>
+                            <Card title="Bill Items" className="mb-6">
+                                <div className="mb-4">
+                                    <Button
+                                        type="dashed"
+                                        icon={<PlusOutlined />}
+                                        onClick={handleAddItem}
+                                    >
+                                        Add Item
+                                    </Button>
+                                </div>
+
+                                {items.map((item, index) => (
+                                    <Card key={index} size="small" className="mb-4">
+                                        <Row gutter={16} align="middle">
+                                            <Col span={7}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Product</div>
+                                                <ProductAutocomplete
+                                                    onChange={(value, product) => product && handleProductSelect(product, index)}
+                                                    placeholder="Search product by name..."
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </Col>
+                                            <Col span={7}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Variant</div>
+                                                <VariantSelector
+                                                    value={item.variantId}
+                                                    onChange={(variantId, variant) => handleVariantSelect(variant, index)}
+                                                    product={item.productId ? { _id: item.productId } as any : null}
+                                                    placeholder="Select variant..."
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </Col>
+                                            <Col span={3}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Quantity</div>
+                                                <InputNumber
+                                                    placeholder="Qty"
+                                                    value={item.quantity}
+                                                    onChange={(value) => handleQuantityChange(value || 1, index)}
+                                                    min={1}
+                                                    className="w-full"
+                                                />
+                                            </Col>
+                                            <Col span={3}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Unit Price</div>
+                                                <InputNumber
+                                                    placeholder="Unit Price"
+                                                    value={item.unitPrice}
+                                                    onChange={(value) => handleUnitPriceChange(value || 0, index)}
+                                                    min={0}
+                                                    step={0.01}
+                                                    prefix="₹"
+                                                    className="w-full"
+                                                />
+                                            </Col>
+                                            <Col span={3}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Total</div>
+                                                <InputNumber
+                                                    placeholder="Total"
+                                                    value={Math.round(item.totalPrice * 100) / 100}
+                                                    disabled
+                                                    prefix="₹"
+                                                    className="w-full"
+                                                />
+                                            </Col>
+                                            <Col span={1}>
+                                                <div className="text-xs text-gray-500 mb-1">&nbsp;</div>
+                                                <Popconfirm
+                                                    title="Remove Item"
+                                                    description="Are you sure you want to remove this item?"
+                                                    onConfirm={() => handleRemoveItem(index)}
+                                                    okText="Yes, Remove"
+                                                    cancelText="Cancel"
+                                                    okType="danger"
+                                                >
+                                                    <Button
+                                                        type="text"
+                                                        danger
+                                                        icon={<DeleteOutlined />}
+                                                    />
+                                                </Popconfirm>
+                                            </Col>
+                                        </Row>
+                                        <Row gutter={16} className="mt-2">
+                                            <Col span={24}>
+                                                <div className="text-xs text-gray-500 mb-1 text-left">Notes</div>
+                                                <Input
+                                                    placeholder="Notes (optional)"
+                                                    value={item.notes}
+                                                    onChange={(e) => {
+                                                        const newItems = [...items];
+                                                        newItems[index].notes = e.target.value;
+                                                        setItems(newItems);
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Card>
+                                ))}
+                            </Card>
+
+
 
                             <Card title="Additional Information">
                                 <Form.Item
@@ -591,10 +555,9 @@ const CreateSaleBill: React.FC = () => {
                         </Col>
                     </Row>
 
-                    <div className="flex justify-end space-x-4">
+                    <div className="flex justify-end space-x-4 mt-4">
                         <Button
                             onClick={() => navigate('/sale-bills')}
-                            size="large"
                         >
                             Cancel
                         </Button>
@@ -603,7 +566,6 @@ const CreateSaleBill: React.FC = () => {
                             icon={<SaveOutlined />}
                             htmlType="submit"
                             loading={loading}
-                            size="large"
                         >
                             Create Sale Bill
                         </Button>
