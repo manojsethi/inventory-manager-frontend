@@ -8,7 +8,6 @@ import {
 import { dashboardService } from '../services';
 import type { DashboardStats } from '../types';
 import { formatNumber } from '../utils/formatters';
-import SyncButton from '../components/SyncButton';
 
 const { Title, Text } = Typography;
 
@@ -130,12 +129,7 @@ const Dashboard: React.FC = () => {
                     </Title>
                     <Text type="secondary">Last 7 days performance summary</Text>
                 </div>
-                <SyncButton
-                    size="middle"
-                    type="primary"
-                    showText={true}
-                    className="ml-4"
-                />
+
             </div>
 
             <Row gutter={[16, 16]}>

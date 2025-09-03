@@ -13,8 +13,6 @@ import {
     TagsOutlined,
     ShoppingOutlined,
     DollarOutlined,
-    PieChartOutlined,
-    LineChartOutlined,
     AlertOutlined,
     ContainerOutlined,
     UserSwitchOutlined,
@@ -24,7 +22,6 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services';
-import SyncButton from '../SyncButton';
 
 const { Sider } = Layout;
 
@@ -75,6 +72,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             label: 'Dashboard',
         },
         {
+            key: 'customers',
+            icon: <UserSwitchOutlined />,
+            label: 'Customers',
+        },
+        {
             key: 'inventory',
             icon: <ContainerOutlined />,
             label: 'Inventory Management',
@@ -84,7 +86,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     icon: <TagsOutlined />,
                     label: 'Product Types',
                 },
-
                 {
                     key: '/product-brands',
                     icon: <BankOutlined />,
@@ -100,14 +101,19 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     icon: <ShoppingOutlined />,
                     label: 'Products',
                 },
-
                 {
                     key: '/low-stock',
                     icon: <AlertOutlined />,
                     label: 'Low Stock Alert',
                 },
+                {
+                    key: '/stock-movement',
+                    icon: <ContainerOutlined />,
+                    label: 'Stock Movement',
+                },
             ],
         },
+
         {
             key: 'sales',
             icon: <ShoppingCartOutlined />,
@@ -119,15 +125,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     label: 'Sale Bills',
                 },
                 {
-                    key: '/customers',
-                    icon: <UserSwitchOutlined />,
-                    label: 'Customers',
-                },
-                {
-                    key: '/quick-sale',
-                    icon: <ShoppingCartOutlined />,
-                    label: 'Quick Sale',
-                },
+                    key: '/sales/reports',
+                    icon: <BarChartOutlined />,
+                    label: 'Sales Reports',
+                }
             ],
         },
         {
@@ -141,44 +142,12 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                     label: 'Purchase Bills',
                 },
                 {
-                    key: '/bills',
-                    icon: <FileProtectOutlined />,
-                    label: 'Bills & Payments',
-                },
-                {
-                    key: '/reports',
+                    key: '/financial/reports',
                     icon: <BarChartOutlined />,
-                    label: 'Reports',
+                    label: 'Financial Reports',
                 },
             ],
-        },
-        {
-            key: 'reports',
-            icon: <PieChartOutlined />,
-            label: 'Analytics & Reports',
-            children: [
-                {
-                    key: '/reports/summary',
-                    icon: <BarChartOutlined />,
-                    label: 'Sales Summary',
-                },
-                {
-                    key: '/reports/comparison',
-                    icon: <LineChartOutlined />,
-                    label: 'Comparison',
-                },
-                {
-                    key: '/reports/stock-movement',
-                    icon: <ContainerOutlined />,
-                    label: 'Stock Movement',
-                },
-                {
-                    key: '/reports/low-stock',
-                    icon: <AlertOutlined />,
-                    label: 'Low Stock Report',
-                },
-            ],
-        },
+        }
     ];
 
     return (
@@ -213,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             </div>
 
             {/* Menu - Takes remaining space */}
-            <div style={{ height: 'calc(100vh - 192px)', overflowY: 'auto' }}>
+            <div style={{ height: 'calc(100vh - 125px)', overflowY: 'auto' }}>
                 <Menu
                     mode="inline"
                     selectedKeys={[location.pathname]}
@@ -225,19 +194,6 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                         textAlign: 'left'
                     }}
                 />
-            </div>
-
-            {/* Sync section - Above user section */}
-            <div className="p-4 border-t border-gray-200" style={{ height: '64px' }}>
-                <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
-
-                    <SyncButton
-                        size="small"
-                        type="primary"
-                        showText={!collapsed}
-                        className="flex-1"
-                    />
-                </div>
             </div>
 
             {/* User section - Fixed at bottom */}
