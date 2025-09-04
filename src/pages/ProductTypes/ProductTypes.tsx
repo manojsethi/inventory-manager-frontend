@@ -11,10 +11,7 @@ import {
     Popconfirm,
     Row,
     Col,
-    Modal,
-    Form,
-    Switch,
-    Upload,
+    Select,
 } from 'antd';
 import {
     PlusOutlined,
@@ -23,14 +20,11 @@ import {
     DeleteOutlined,
     ExclamationCircleOutlined,
     KeyOutlined,
-    UploadOutlined,
-    DeleteOutlined as DeleteIcon,
 } from '@ant-design/icons';
 import { productTypeService } from '../../services';
 import type { ProductType, ProductTypeCategory } from '../../types';
-import { uploadService } from '../../services/uploadService';
-import { ImageType } from '../../types';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
+import { ProductTypeModal, ProductTypeCategoryModal } from '../../components/ProductTypes';
 
 const { Title, Text } = Typography;
 
@@ -43,20 +37,14 @@ const ProductTypes: React.FC = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingProductType, setEditingProductType] = useState<ProductType | null>(null);
     const [modalLoading, setModalLoading] = useState(false);
-    const [form] = Form.useForm();
-    const [logoUrl, setLogoUrl] = useState<string>('');
-    const [uploading, setUploading] = useState(false);
 
     // Category modal state
     const [categoryModalVisible, setCategoryModalVisible] = useState(false);
     const [editingCategory, setEditingCategory] = useState<ProductTypeCategory | null>(null);
     const [categoryModalLoading, setCategoryModalLoading] = useState(false);
-    const [categoryForm] = Form.useForm();
     const [selectedProductType, setSelectedProductType] = useState<ProductType | null>(null);
     const [categories, setCategories] = useState<{ [key: string]: ProductTypeCategory[] }>({});
     const [categoriesLoading, setCategoriesLoading] = useState<{ [key: string]: boolean }>({});
-    const [categoryLogoUrl, setCategoryLogoUrl] = useState<string>('');
-    const [categoryUploading, setCategoryUploading] = useState(false);
     const [expandedRows, setExpandedRows] = useState<string[]>([]);
     const [categoryPagination, setCategoryPagination] = useState<{ [key: string]: { current: number; pageSize: number } }>({});
 
@@ -114,148 +102,35 @@ const ProductTypes: React.FC = () => {
 
     const handleAddProductType = () => {
         setEditingProductType(null);
-        setLogoUrl('');
-        form.resetFields();
         setModalVisible(true);
     };
 
     const handleEditProductType = (productType: ProductType) => {
         setEditingProductType(productType);
-        setLogoUrl(productType.logo || '');
-        form.setFieldsValue({
-            name: productType.name,
-            description: productType.description,
-            logo: productType.logo,
-            skuPrefix: productType.skuPrefix,
-        });
         setModalVisible(true);
-    };
-
-    const handleLogoUpload = async (file: File) => {
-        try {
-            setUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_TYPE);
-            setLogoUrl(uploadedImage.url);
-            form.setFieldsValue({ logo: uploadedImage.url });
-            message.success('Logo uploaded successfully');
-        } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Logo upload failed');
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    const removeLogo = () => {
-        setLogoUrl('');
-        form.setFieldsValue({ logo: '' });
-    };
-
-    const handleModalSubmit = async (values: any) => {
-        try {
-            setModalLoading(true);
-            const productTypeData = {
-                name: values.name,
-                description: values.description,
-                logo: logoUrl || values.logo,
-                skuPrefix: values.skuPrefix,
-            };
-
-            if (editingProductType) {
-                await productTypeService.update(editingProductType._id, productTypeData);
-                message.success('Product type updated successfully');
-            } else {
-                await productTypeService.create(productTypeData);
-                message.success('Product type created successfully');
-            }
-
-            setModalVisible(false);
-            fetchProductTypes();
-        } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Failed to save product type');
-        } finally {
-            setModalLoading(false);
-        }
     };
 
     const handleModalCancel = () => {
         setModalVisible(false);
         setEditingProductType(null);
-        setLogoUrl('');
-        form.resetFields();
     };
 
     // Category handlers
     const handleAddCategory = (productType: ProductType) => {
         setSelectedProductType(productType);
         setEditingCategory(null);
-        setCategoryLogoUrl('');
-        categoryForm.resetFields();
         setCategoryModalVisible(true);
     };
 
     const handleEditCategory = (category: ProductTypeCategory) => {
         setEditingCategory(category);
-        setCategoryLogoUrl(category.logo || '');
-        categoryForm.setFieldsValue({
-            name: category.name,
-            description: category.description,
-            logo: category.logo,
-            skuPrefix: category.skuPrefix,
-            isActive: category.isActive,
-        });
         setCategoryModalVisible(true);
     };
 
-    const handleCategoryLogoUpload = async (file: File) => {
-        try {
-            setCategoryUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_TYPE_CATEGORY);
-            setCategoryLogoUrl(uploadedImage.url);
-            categoryForm.setFieldsValue({ logo: uploadedImage.url });
-            message.success('Logo uploaded successfully');
-        } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Logo upload failed');
-        } finally {
-            setCategoryUploading(false);
-        }
-    };
-
-    const removeCategoryLogo = () => {
-        setCategoryLogoUrl('');
-        categoryForm.setFieldsValue({ logo: '' });
-    };
-
-    const handleCategorySubmit = async (values: any) => {
-        if (!selectedProductType) return;
-
-        try {
-            setCategoryModalLoading(true);
-            const categoryData = {
-                name: values.name,
-                description: values.description,
-                logo: categoryLogoUrl || values.logo,
-                skuPrefix: values.skuPrefix,
-                isActive: values.isActive,
-            };
-
-            if (editingCategory) {
-                await productTypeService.updateCategory(selectedProductType._id, editingCategory._id, categoryData);
-                message.success('Category updated successfully');
-            } else {
-                await productTypeService.createCategory(selectedProductType._id, categoryData);
-                message.success('Category created successfully');
-            }
-
-            categoryForm.resetFields();
-            setEditingCategory(null);
-            setCategoryLogoUrl('');
-            setCategoryModalVisible(false);
-            await fetchCategories(selectedProductType._id);
-        } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Failed to save category');
-        } finally {
-            setCategoryModalLoading(false);
-        }
+    const handleCategoryModalCancel = () => {
+        setCategoryModalVisible(false);
+        setSelectedProductType(null);
+        setEditingCategory(null);
     };
 
     const handleDeleteCategory = async (productTypeId: string, categoryId: string) => {
@@ -266,14 +141,6 @@ const ProductTypes: React.FC = () => {
         } catch (err) {
             message.error(err instanceof Error ? err.message : 'Failed to delete category');
         }
-    };
-
-    const handleCategoryModalCancel = () => {
-        setCategoryModalVisible(false);
-        setSelectedProductType(null);
-        setEditingCategory(null);
-        setCategoryLogoUrl('');
-        categoryForm.resetFields();
     };
 
     const handleExpand = async (expanded: boolean, record: ProductType) => {
@@ -595,270 +462,76 @@ const ProductTypes: React.FC = () => {
             </div>
 
             {/* Add/Edit Product Type Modal */}
-            <Modal
-                title={editingProductType ? 'Edit Product Type' : 'Add New Product Type'}
+            <ProductTypeModal
                 open={modalVisible}
                 onCancel={handleModalCancel}
-                footer={null}
-                width={600}
-                destroyOnHidden
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleModalSubmit}
-                >
-                    <Form.Item
-                        name="name"
-                        label="Product Type Name"
-                        rules={[
-                            { required: true, message: 'Please enter product type name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                            { max: 100, message: 'Name cannot exceed 100 characters' }
-                        ]}
-                    >
-                        <Input placeholder="Enter product type name" />
-                    </Form.Item>
+                loading={modalLoading}
+                editingProductType={editingProductType}
+                onSubmit={async (values) => {
+                    try {
+                        setModalLoading(true);
+                        const productTypeData = {
+                            name: values.name,
+                            description: values.description,
+                            logo: values.logo, // Logo is now handled by the modal's upload component
+                            skuPrefix: values.skuPrefix,
+                        };
 
-                    <Form.Item
-                        name="description"
-                        label="Description"
-                        rules={[
-                            { max: 500, message: 'Description cannot exceed 500 characters' }
-                        ]}
-                    >
-                        <Input.TextArea
-                            rows={3}
-                            placeholder="Enter description (optional)"
-                        />
-                    </Form.Item>
+                        if (editingProductType) {
+                            await productTypeService.update(editingProductType._id, productTypeData);
+                            message.success('Product type updated successfully');
+                        } else {
+                            await productTypeService.create(productTypeData);
+                            message.success('Product type created successfully');
+                        }
 
-                    <Form.Item
-                        name="logo"
-                        label="Logo"
-                    >
-                        <div className="space-y-4">
-                            {logoUrl && (
-                                <div className="flex items-center space-x-4">
-                                    <ImageWithFallback
-                                        src={logoUrl}
-                                        alt="Logo"
-                                        size="medium"
-                                        variant="logo"
-                                        width={80}
-                                        height={80}
-                                    />
-                                    <Button
-                                        type="text"
-                                        icon={<DeleteIcon />}
-                                        danger
-                                        onClick={removeLogo}
-                                        title="Remove Logo"
-                                    >
-                                        Remove
-                                    </Button>
-                                </div>
-                            )}
-                            <Upload
-                                name="logo"
-                                multiple={false}
-                                accept="image/*"
-                                beforeUpload={async (file: File) => {
-                                    const isImage = file.type.startsWith('image/');
-                                    if (!isImage) {
-                                        message.error('You can only upload image files!');
-                                        return false;
-                                    }
-                                    const isLt5M = file.size / 1024 / 1024 < 5;
-                                    if (!isLt5M) {
-                                        message.error('Image must be smaller than 5MB!');
-                                        return false;
-                                    }
-
-                                    await handleLogoUpload(file);
-                                    return false;
-                                }}
-                                showUploadList={false}
-                            >
-                                <Button
-                                    icon={<UploadOutlined />}
-                                    loading={uploading}
-                                >
-                                    {uploading ? 'Uploading...' : 'Upload Logo'}
-                                </Button>
-                            </Upload>
-                            <div className="text-sm text-gray-500">
-                                Upload a square image (recommended: 150x150px, max 5MB)
-                            </div>
-                        </div>
-                    </Form.Item>
-
-                    <Form.Item
-                        name="skuPrefix"
-                        label="SKU Prefix"
-                        rules={[
-                            { required: true, message: 'Please enter SKU prefix' },
-                            { min: 1, message: 'SKU prefix must be at least 1 character' },
-                            { max: 20, message: 'SKU prefix cannot exceed 20 characters' }
-                        ]}
-                    >
-                        <Input placeholder="Enter SKU prefix (e.g., PRD, ELEC, etc.)" />
-                    </Form.Item>
-
-                    {/* Form Actions */}
-                    <div className="flex justify-end space-x-4 pt-6 border-t">
-                        <Button onClick={handleModalCancel} disabled={modalLoading}>
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={modalLoading}
-                        >
-                            {editingProductType ? 'Update Product Type' : 'Create Product Type'}
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                        setModalVisible(false);
+                        fetchProductTypes();
+                    } catch (err) {
+                        message.error(err instanceof Error ? err.message : 'Failed to save product type');
+                    } finally {
+                        setModalLoading(false);
+                    }
+                }}
+            />
 
             {/* Category Form Modal */}
-            <Modal
-                title={editingCategory ? 'Edit Category' : 'Add New Category'}
+            <ProductTypeCategoryModal
                 open={categoryModalVisible}
                 onCancel={handleCategoryModalCancel}
-                footer={null}
-                width={600}
-                destroyOnHidden
-            >
-                <Form
-                    form={categoryForm}
-                    layout="vertical"
-                    onFinish={handleCategorySubmit}
-                >
-                    <Form.Item
-                        name="name"
-                        label="Category Name"
-                        rules={[
-                            { required: true, message: 'Please enter category name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                            { max: 100, message: 'Name cannot exceed 100 characters' }
-                        ]}
-                    >
-                        <Input placeholder="Enter category name" />
-                    </Form.Item>
+                loading={categoryModalLoading}
+                editingCategory={editingCategory}
+                onSubmit={async (values) => {
+                    if (!selectedProductType) return;
 
-                    <Form.Item
-                        name="description"
-                        label="Description"
-                        rules={[
-                            { max: 500, message: 'Description cannot exceed 500 characters' }
-                        ]}
-                    >
-                        <Input.TextArea
-                            rows={3}
-                            placeholder="Enter description (optional)"
-                        />
-                    </Form.Item>
+                    try {
+                        setCategoryModalLoading(true);
+                        const categoryData = {
+                            name: values.name,
+                            description: values.description,
+                            logo: values.logo, // Logo is now handled by the modal's upload component
+                            skuPrefix: values.skuPrefix,
+                            isActive: values.isActive,
+                        };
 
-                    <Form.Item
-                        name="logo"
-                        label="Logo"
-                    >
-                        <div className="space-y-4">
-                            {categoryLogoUrl && (
-                                <div className="flex items-center space-x-4">
-                                    <ImageWithFallback
-                                        src={categoryLogoUrl}
-                                        alt="Logo"
-                                        size="medium"
-                                        variant="logo"
-                                        width={80}
-                                        height={80}
-                                    />
-                                    <Button
-                                        type="text"
-                                        icon={<DeleteIcon />}
-                                        danger
-                                        onClick={removeCategoryLogo}
-                                        title="Remove Logo"
-                                    >
-                                        Remove
-                                    </Button>
-                                </div>
-                            )}
-                            <Upload
-                                name="logo"
-                                multiple={false}
-                                accept="image/*"
-                                beforeUpload={async (file: File) => {
-                                    const isImage = file.type.startsWith('image/');
-                                    if (!isImage) {
-                                        message.error('You can only upload image files!');
-                                        return false;
-                                    }
-                                    const isLt5M = file.size / 1024 / 1024 < 5;
-                                    if (!isLt5M) {
-                                        message.error('Image must be smaller than 5MB!');
-                                        return false;
-                                    }
+                        if (editingCategory) {
+                            await productTypeService.updateCategory(selectedProductType._id, editingCategory._id, categoryData);
+                            message.success('Category updated successfully');
+                        } else {
+                            await productTypeService.createCategory(selectedProductType._id, categoryData);
+                            message.success('Category created successfully');
+                        }
 
-                                    await handleCategoryLogoUpload(file);
-                                    return false;
-                                }}
-                                showUploadList={false}
-                            >
-                                <Button
-                                    icon={<UploadOutlined />}
-                                    loading={categoryUploading}
-                                >
-                                    {categoryUploading ? 'Uploading...' : 'Upload Logo'}
-                                </Button>
-                            </Upload>
-                            <div className="text-sm text-gray-500">
-                                Upload a square image (recommended: 150x150px, max 5MB)
-                            </div>
-                        </div>
-                    </Form.Item>
-
-                    <Form.Item
-                        name="skuPrefix"
-                        label="SKU Prefix"
-                        rules={[
-                            { required: true, message: 'Please enter SKU prefix' },
-                            { min: 1, message: 'SKU prefix must be at least 1 character' },
-                            { max: 20, message: 'SKU prefix cannot exceed 20 characters' }
-                        ]}
-                    >
-                        <Input placeholder="Enter SKU prefix (e.g., CAT, SUB, etc.)" />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="isActive"
-                        label="Status"
-                        valuePropName="checked"
-                        initialValue={true}
-                    >
-                        <Switch
-                            checkedChildren="Active"
-                            unCheckedChildren="Inactive"
-                        />
-                    </Form.Item>
-
-                    {/* Form Actions */}
-                    <div className="flex justify-end space-x-4 pt-6 border-t">
-                        <Button onClick={() => categoryForm.resetFields()} disabled={categoryModalLoading}>
-                            Reset
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={categoryModalLoading}
-                        >
-                            {editingCategory ? 'Update Category' : 'Create Category'}
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                        setEditingCategory(null);
+                        setCategoryModalVisible(false);
+                        await fetchCategories(selectedProductType._id);
+                    } catch (err) {
+                        message.error(err instanceof Error ? err.message : 'Failed to save category');
+                    } finally {
+                        setCategoryModalLoading(false);
+                    }
+                }}
+            />
         </div>
     );
 };
