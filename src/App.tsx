@@ -15,6 +15,7 @@ import CreatePurchaseBill from './pages/PurchaseBills/CreatePurchaseBill';
 import { PurchaseBillDetail, EditPurchaseBill } from './pages/PurchaseBills';
 import Customers from './pages/Customers';
 import { SaleBills, CreateSaleBill, SaleBillDetail, EditSaleBill } from './pages/SaleBills';
+import { SalesReports } from './pages/SalesReports';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/Layout/MainLayout';
@@ -232,7 +233,17 @@ function App() {
           }
         />
 
-
+        {/* Sales Reports routes */}
+        <Route
+          path="/sales/reports"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SalesReports />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Catch all route - redirect to appropriate page */}
         <Route

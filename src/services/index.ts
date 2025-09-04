@@ -9,6 +9,7 @@ export { default as productService } from './productService';
 export { default as productTypeService } from './productTypeService';
 export { default as purchaseBillService } from './purchaseBillService';
 export { default as saleBillService } from './saleBillService';
+export { salesReportService } from './salesReportService';
 export { default as supplierService } from './supplierService';
 export { default as uploadService } from './uploadService';
 
