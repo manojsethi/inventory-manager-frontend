@@ -31,6 +31,7 @@ import type { SaleBillItem } from '../../types/saleBill';
 import type { SaleBillCustomer as Customer } from '../../types/saleBill';
 import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import VariantSelector from '../../components/Products/VariantSelector';
+import { AddCustomerModal } from '../../components/Common';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -44,7 +45,16 @@ const CreateSaleBill: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [billNumber, setBillNumber] = useState('');
-    const [items, setItems] = useState<SaleBillItem[]>([]);
+    const [items, setItems] = useState<SaleBillItem[]>([
+        {
+            sku: '',
+            name: '',
+            quantity: 1,
+            unitPrice: 0,
+            totalPrice: 0,
+            notes: '',
+        }
+    ]);
     const [subtotal, setSubtotal] = useState(0);
     const [totalAmount, setTotalAmount] = useState(0);
 
@@ -107,7 +117,8 @@ const CreateSaleBill: React.FC = () => {
     };
 
     // Handle customer selection
-    const handleCustomerSelect = (customerId: string) => {
+    const handleCustomerSelect = (value: any) => {
+        const customerId = typeof value === 'object' ? value.value : value;
         const customer = customers.find(c => c._id === customerId);
         if (customer) {
             setSelectedCustomer(customer);
@@ -336,8 +347,8 @@ const CreateSaleBill: React.FC = () => {
                                             }
                                             optionLabelProp="label"
                                             dropdownStyle={{ minWidth: '300px' }}
-                                            labelInValue={false}
                                             className="text-left"
+                                            labelInValue={true}
                                         >
                                             {customers.map(customer => (
                                                 <Option key={customer._id} value={customer._id} label={`${customer.name} - Phone: ${customer.phone}`}>
@@ -573,64 +584,18 @@ const CreateSaleBill: React.FC = () => {
                 </Form>
             </div>
 
-            {/* Add Customer Modal */}
-            <Modal
-                title="Add New Customer"
+            <AddCustomerModal
                 open={isAddCustomerModalVisible}
-                onCancel={() => {
-                    setIsAddCustomerModalVisible(false);
-                    newCustomerForm.resetFields();
+                onCancel={() => setIsAddCustomerModalVisible(false)}
+                onCustomerAdded={(customer) => {
+                    // Add the new customer to the customers list
+                    setCustomers(prevCustomers => [...prevCustomers, customer]);
+                    setSelectedCustomer(customer);
+                    form.setFieldsValue({ customer: customer._id });
+                    // Update the customer search text to show the selected customer name
+                    setCustomerSearchText(`${customer.name} - ${customer.phone}`);
                 }}
-                footer={null}
-                width={500}
-                destroyOnHidden
-            >
-                <Form
-                    form={newCustomerForm}
-                    layout="vertical"
-                    onFinish={handleAddCustomer}
-                >
-                    <Form.Item
-                        name="name"
-                        label="Customer Name"
-                        rules={[
-                            { required: true, message: 'Please enter customer name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                        ]}
-                    >
-                        <Input placeholder="Enter customer name" />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="phone"
-                        label="Phone Number"
-                        rules={[
-                            { required: true, message: 'Please enter phone number' },
-                            { pattern: /^[0-9+\-\s()]*$/, message: 'Please enter a valid phone number' },
-                        ]}
-                    >
-                        <Input placeholder="Enter phone number" />
-                    </Form.Item>
-
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => {
-                                setIsAddCustomerModalVisible(false);
-                                newCustomerForm.resetFields();
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={addingCustomer}
-                        >
-                            Add Customer
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+            />
         </div>
     );
 };

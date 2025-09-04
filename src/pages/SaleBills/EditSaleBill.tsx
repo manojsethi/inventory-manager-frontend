@@ -67,10 +67,7 @@ const EditSaleBill: React.FC = () => {
     const [selectedCustomer, setSelectedCustomer] = useState<SaleBillCustomer | null>(null);
     const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
 
-    // Add customer modal states
-    const [isAddCustomerModalVisible, setIsAddCustomerModalVisible] = useState(false);
-    const [newCustomerForm] = Form.useForm();
-    const [addingCustomer, setAddingCustomer] = useState(false);
+
 
     // Return items states
     const [isReturnModalVisible, setIsReturnModalVisible] = useState(false);
@@ -206,26 +203,7 @@ const EditSaleBill: React.FC = () => {
         }
     };
 
-    // Add new customer
-    const handleAddCustomer = async (values: { name: string; phone: string }) => {
-        try {
-            setAddingCustomer(true);
-            const newCustomer = await saleBillService.createCustomer(values);
 
-            // Set the new customer as selected
-            setSelectedCustomer(newCustomer);
-            setCustomerSearchText(newCustomer.name);
-            form.setFieldsValue({ customer: newCustomer._id });
-
-            setIsAddCustomerModalVisible(false);
-            newCustomerForm.resetFields();
-            message.success('Customer added successfully');
-        } catch (error: any) {
-            message.error(error.response?.data?.error || 'Failed to add customer');
-        } finally {
-            setAddingCustomer(false);
-        }
-    };
 
     // Add item to sale bill
     const handleAddItem = () => {
@@ -533,13 +511,6 @@ const EditSaleBill: React.FC = () => {
                                                 customerSearchText.length >= 2 ? (
                                                     <div className="p-2">
                                                         <Text type="secondary">No customers found</Text>
-                                                        <Button
-                                                            type="link"
-                                                            size="small"
-                                                            onClick={() => setIsAddCustomerModalVisible(true)}
-                                                        >
-                                                            Add New Customer
-                                                        </Button>
                                                     </div>
                                                 ) : null
                                             }
@@ -904,64 +875,7 @@ const EditSaleBill: React.FC = () => {
                 </Form>
             </div>
 
-            {/* Add Customer Modal */}
-            <Modal
-                title="Add New Customer"
-                open={isAddCustomerModalVisible}
-                onCancel={() => {
-                    setIsAddCustomerModalVisible(false);
-                    newCustomerForm.resetFields();
-                }}
-                footer={null}
-                width={500}
-                destroyOnHidden
-            >
-                <Form
-                    form={newCustomerForm}
-                    layout="vertical"
-                    onFinish={handleAddCustomer}
-                >
-                    <Form.Item
-                        name="name"
-                        label="Customer Name"
-                        rules={[
-                            { required: true, message: 'Please enter customer name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                        ]}
-                    >
-                        <Input placeholder="Enter customer name" />
-                    </Form.Item>
 
-                    <Form.Item
-                        name="phone"
-                        label="Phone Number"
-                        rules={[
-                            { required: true, message: 'Please enter phone number' },
-                            { pattern: /^[0-9+\-\s()]*$/, message: 'Please enter a valid phone number' },
-                        ]}
-                    >
-                        <Input placeholder="Enter phone number" />
-                    </Form.Item>
-
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => {
-                                setIsAddCustomerModalVisible(false);
-                                newCustomerForm.resetFields();
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={addingCustomer}
-                        >
-                            Add Customer
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
 
             {/* Return Items Modal */}
             <Modal

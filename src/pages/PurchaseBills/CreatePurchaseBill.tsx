@@ -526,7 +526,6 @@ const CreatePurchaseBill: React.FC = () => {
                     <Button
                         icon={<ArrowLeftOutlined />}
                         onClick={handleCancel}
-                        size="large"
                     >
                         Cancel
                     </Button>
@@ -535,7 +534,6 @@ const CreatePurchaseBill: React.FC = () => {
                         icon={<SaveOutlined />}
                         htmlType="submit"
                         loading={loading}
-                        size="large"
                     >
                         Create Purchase Bill
                     </Button>

@@ -34,6 +34,7 @@ import {
 } from '@ant-design/icons';
 import { customerService } from '../../services/customerService';
 import type { Customer, CreateCustomerRequest, UpdateCustomerRequest } from '../../types/customer';
+import PhoneInputField, { getPhoneInputValidationRules } from '../../components/Common/PhoneInputField';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -55,7 +56,7 @@ const Customers: React.FC = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<string>('active');
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 10,
@@ -292,7 +293,6 @@ const Customers: React.FC = () => {
                         type="primary"
                         icon={<PlusOutlined />}
                         onClick={() => setIsAddModalVisible(true)}
-                        size="large"
                     >
                         Add Customer
                     </Button>
@@ -383,12 +383,14 @@ const Customers: React.FC = () => {
                             <Form.Item
                                 name="phone"
                                 label="Phone Number"
-                                rules={[
-                                    { required: true, message: 'Please enter phone number' },
-                                    { pattern: /^[0-9+\-\s()]*$/, message: 'Please enter a valid phone number' },
-                                ]}
+                                rules={getPhoneInputValidationRules()}
                             >
-                                <Input placeholder="Enter phone number" />
+                                <PhoneInputField
+                                    placeholder="Enter phone number"
+                                    onChange={(value) => {
+                                        form.setFieldsValue({ phone: value });
+                                    }}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -494,12 +496,9 @@ const Customers: React.FC = () => {
                             <Form.Item
                                 name="phone"
                                 label="Phone Number"
-                                rules={[
-                                    { required: true, message: 'Please enter phone number' },
-                                    { pattern: /^[0-9+\-\s()]*$/, message: 'Please enter a valid phone number' },
-                                ]}
+                                rules={getPhoneInputValidationRules()}
                             >
-                                <Input placeholder="Enter phone number" />
+                                <PhoneInputField />
                             </Form.Item>
                         </Col>
                     </Row>

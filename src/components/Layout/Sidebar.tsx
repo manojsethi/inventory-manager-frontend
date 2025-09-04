@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             label: 'Dashboard',
         },
         {
-            key: 'customers',
+            key: '/customers',
             icon: <UserSwitchOutlined />,
             label: 'Customers',
         },
