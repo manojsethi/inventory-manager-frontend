@@ -113,9 +113,31 @@ export const API_ENDPOINTS = {
     // Reports endpoints
     REPORTS: {
         BASE: '/api/reports',
-        SALES_SUMMARY: '/api/reports/sales-summary',
-        INVENTORY: '/api/reports/inventory',
+        // Dashboard & Combined Reports
+        DASHBOARD: '/api/reports/dashboard',
         PROFIT_LOSS: '/api/reports/profit-loss',
+        INVENTORY_TURNOVER: '/api/reports/inventory-turnover',
+        MONTHLY_BUSINESS: '/api/reports/monthly-business',
+        // Sales Reports
+        SALES: {
+            DAILY_SUMMARY: '/api/reports/sales/daily-summary',
+            MONTHLY_REPORT: '/api/reports/sales/monthly-report',
+            RETURN_REPORT: '/api/reports/sales/return-report',
+            PERFORMANCE_BY_DATE: '/api/reports/sales/performance-by-date',
+            TOP_CUSTOMERS: '/api/reports/sales/top-customers',
+            PRODUCT_CATEGORY: '/api/reports/sales/product-category',
+            GROWTH_REPORT: '/api/reports/sales/growth-report',
+            AVERAGE_BILL_VALUE: '/api/reports/sales/average-bill-value',
+        },
+        // Purchase Reports
+        PURCHASES: {
+            DAILY_SUMMARY: '/api/reports/purchases/daily-summary',
+            MONTHLY_SUMMARY: '/api/reports/purchases/monthly-summary',
+            SUPPLIER_WISE: '/api/reports/purchases/supplier-wise',
+            TOP_SUPPLIERS: '/api/reports/purchases/top-suppliers',
+            COST_ANALYSIS: '/api/reports/purchases/cost-analysis',
+            GROWTH_REPORT: '/api/reports/purchases/growth-report',
+        },
     },
 
     // Users endpoints

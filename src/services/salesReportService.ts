@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from '../constants/apiEndpoints';
 import { axios } from '../utils';
 
 // Types for Sales Reports
@@ -79,7 +80,7 @@ export interface AverageBillValueReport {
 class SalesReportService {
     // Daily Sales Summary
     async getDailySalesSummary(startDate: string, endDate: string): Promise<DailySalesSummary[]> {
-        const response = await axios.get('/api/reports/sales/daily-summary', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.DAILY_SUMMARY, {
             params: { startDate, endDate }
         });
         return response.data.data;
@@ -87,7 +88,7 @@ class SalesReportService {
 
     // Monthly Sales Report
     async getMonthlySalesReport(year?: number): Promise<MonthlySalesReport[]> {
-        const response = await axios.get('/api/reports/sales/monthly-report', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.MONTHLY_REPORT, {
             params: year ? { year } : {}
         });
         return response.data.data;
@@ -95,7 +96,7 @@ class SalesReportService {
 
     // Sales Return Report
     async getSalesReturnReport(startDate: string, endDate: string): Promise<SalesReturnReport> {
-        const response = await axios.get('/api/reports/sales/return-report', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.RETURN_REPORT, {
             params: { startDate, endDate }
         });
         return response.data.data;
@@ -103,7 +104,7 @@ class SalesReportService {
 
     // Sales Performance by Date
     async getSalesPerformanceByDate(startDate: string, endDate: string): Promise<SalesPerformanceByDate[]> {
-        const response = await axios.get('/api/reports/sales/performance-by-date', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.PERFORMANCE_BY_DATE, {
             params: { startDate, endDate }
         });
         return response.data.data;
@@ -111,7 +112,7 @@ class SalesReportService {
 
     // Top Customers Report
     async getTopCustomers(limit?: number, startDate?: string, endDate?: string): Promise<TopCustomer[]> {
-        const response = await axios.get('/api/reports/sales/top-customers', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.TOP_CUSTOMERS, {
             params: { limit, startDate, endDate }
         });
         return response.data.data;
@@ -119,7 +120,7 @@ class SalesReportService {
 
     // Product Category Report
     async getProductCategoryReport(startDate: string, endDate: string): Promise<ProductCategoryReport[]> {
-        const response = await axios.get('/api/reports/sales/product-category', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.PRODUCT_CATEGORY, {
             params: { startDate, endDate }
         });
         return response.data.data;
@@ -127,7 +128,7 @@ class SalesReportService {
 
     // Sales Growth Report
     async getSalesGrowthReport(year?: number): Promise<SalesGrowthReport[]> {
-        const response = await axios.get('/api/reports/sales/growth-report', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.GROWTH_REPORT, {
             params: year ? { year } : {}
         });
         return response.data.data;
@@ -135,7 +136,7 @@ class SalesReportService {
 
     // Average Bill Value Report
     async getAverageBillValueReport(startDate: string, endDate: string): Promise<AverageBillValueReport> {
-        const response = await axios.get('/api/reports/sales/average-bill-value', {
+        const response = await axios.get(API_ENDPOINTS.REPORTS.SALES.AVERAGE_BILL_VALUE, {
             params: { startDate, endDate }
         });
         return response.data.data;
