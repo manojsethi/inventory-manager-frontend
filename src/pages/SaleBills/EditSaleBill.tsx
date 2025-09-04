@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Form,
     Input,
@@ -12,7 +12,6 @@ import {
     Select,
     InputNumber,
     DatePicker,
-    Modal,
     Spin,
     Table,
     Upload,
@@ -31,6 +30,7 @@ import ProductAutocomplete from '../../components/Products/ProductAutocomplete';
 import dayjs from 'dayjs';
 import { uploadService } from '../../services/uploadService';
 import { ImageType } from '../../types';
+import { ReturnItemsModal } from '../../components/SaleBills';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -72,7 +72,6 @@ const EditSaleBill: React.FC = () => {
     // Return items states
     const [isReturnModalVisible, setIsReturnModalVisible] = useState(false);
     const [returnItems, setReturnItems] = useState<ReturnItem[]>([]);
-    const [returnForm] = Form.useForm();
     const [processingReturn, setProcessingReturn] = useState(false);
 
     // Images state
@@ -95,27 +94,10 @@ const EditSaleBill: React.FC = () => {
         setImages(newImages);
     };
 
-    // Load sale bill data
-    useEffect(() => {
-        if (id) {
-            loadSaleBill();
-        }
-    }, [id]);
-
-    // Calculate totals when items change
-    useEffect(() => {
-        const newSubtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-        setSubtotal(newSubtotal);
-
-        const taxAmount = form.getFieldValue('taxAmount') || 0;
-        const shippingAmount = form.getFieldValue('shippingAmount') || 0;
-        setTotalAmount(newSubtotal + taxAmount + shippingAmount);
-    }, [items, form]);
-
     // Track current status for read-only state
     const [currentStatus, setCurrentStatus] = useState<string>('paid');
 
-    const loadSaleBill = async () => {
+    const loadSaleBill = useCallback(async () => {
         try {
             setLoading(true);
             const data = await saleBillService.getById(id!);
@@ -167,7 +149,24 @@ const EditSaleBill: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, form, navigate]);
+
+    // Load sale bill data
+    useEffect(() => {
+        if (id) {
+            loadSaleBill();
+        }
+    }, [id, loadSaleBill]);
+
+    // Calculate totals when items change
+    useEffect(() => {
+        const newSubtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+        setSubtotal(newSubtotal);
+
+        const taxAmount = form.getFieldValue('taxAmount') || 0;
+        const shippingAmount = form.getFieldValue('shippingAmount') || 0;
+        setTotalAmount(newSubtotal + taxAmount + shippingAmount);
+    }, [items, form]);
 
     // Search customers
     const searchCustomers = async (query: string) => {
@@ -205,24 +204,6 @@ const EditSaleBill: React.FC = () => {
 
 
 
-    // Add item to sale bill
-    const handleAddItem = () => {
-        const newItem: SaleBillItem = {
-            sku: '',
-            name: '',
-            quantity: 1,
-            unitPrice: 0,
-            totalPrice: 0,
-        };
-        setItems([...items, newItem]);
-    };
-
-    // Remove item from sale bill
-    const handleRemoveItem = (index: number) => {
-        const newItems = items.filter((_, i) => i !== index);
-        setItems(newItems);
-    };
-
     // Handle product selection
     const handleProductSelect = (product: any, index: number) => {
         const newItems = [...items];
@@ -231,20 +212,6 @@ const EditSaleBill: React.FC = () => {
             productId: product._id,
             name: product.name,
             sku: product.sku || '',
-        };
-        setItems(newItems);
-    };
-
-    // Handle variant selection
-    const handleVariantSelect = (variant: any, index: number) => {
-        const newItems = [...items];
-        newItems[index] = {
-            ...newItems[index],
-            variantId: variant._id,
-            sku: variant.sku,
-            name: `${newItems[index].name} - ${variant.name}`,
-            unitPrice: variant.currentPrice || 0,
-            totalPrice: (variant.currentPrice || 0) * newItems[index].quantity,
         };
         setItems(newItems);
     };
@@ -305,10 +272,6 @@ const EditSaleBill: React.FC = () => {
         }).filter(item => item.maxReturnableQuantity > 0); // Only show items that can be returned
 
         setReturnItems(returnableItems);
-        returnForm.setFieldsValue({
-            dateOfReturn: dayjs(),
-            note: ''
-        });
         setIsReturnModalVisible(true);
     };
 
@@ -345,19 +308,12 @@ const EditSaleBill: React.FC = () => {
 
     // Handle return submission
     const handleReturnSubmit = async (values: any) => {
-        const itemsToReturn = returnItems.filter(item => item.quantity > 0);
-
-        if (itemsToReturn.length === 0) {
-            message.error('Please select at least one item to return');
-            return;
-        }
-
         try {
             setProcessingReturn(true);
             const returnData = {
                 dateOfReturn: values.dateOfReturn.toDate(),
                 note: values.note,
-                items: itemsToReturn.map(item => ({
+                items: returnItems.filter(item => item.quantity > 0).map(item => ({
                     variantId: item.variantId,
                     sku: item.sku,
                     name: item.name,
@@ -878,151 +834,16 @@ const EditSaleBill: React.FC = () => {
 
 
             {/* Return Items Modal */}
-            <Modal
-                title="Return Items"
+            <ReturnItemsModal
                 open={isReturnModalVisible}
-                onCancel={() => {
-                    setIsReturnModalVisible(false);
-                    returnForm.resetFields();
-                }}
-                footer={null}
-                width={1000}
-                destroyOnHidden
-            >
-                <Form
-                    form={returnForm}
-                    layout="vertical"
-                    onFinish={handleReturnSubmit}
-                >
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="dateOfReturn"
-                                label="Date of Return"
-                                rules={[
-                                    { required: true, message: 'Please select return date' }
-                                ]}
-                            >
-                                <DatePicker
-                                    style={{ width: '100%' }}
-                                    format="DD/MM/YYYY"
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="note"
-                                label="Return Note"
-                            >
-                                <TextArea
-                                    rows={3}
-                                    placeholder="General note about this return..."
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <div className="mb-4">
-                        <Text strong>Select Items to Return:</Text>
-                        <Text type="secondary" className="ml-2">
-                            (Only items that can be returned are shown)
-                        </Text>
-                    </div>
-
-                    <Table
-                        dataSource={returnItems}
-                        columns={[
-                            {
-                                title: 'Product',
-                                key: 'product',
-                                render: (_, record) => (
-                                    <div>
-                                        <div className="font-medium">{record.name}</div>
-                                        <div className="text-sm text-gray-500">SKU: {record.sku}</div>
-                                    </div>
-                                ),
-                            },
-                            {
-                                title: 'Max Returnable',
-                                key: 'maxReturnable',
-                                render: (_, record) => (
-                                    <Text>{record.maxReturnableQuantity}</Text>
-                                ),
-                            },
-                            {
-                                title: 'Return Quantity',
-                                key: 'returnQuantity',
-                                render: (_, record, index) => (
-                                    <InputNumber
-                                        value={record.quantity}
-                                        onChange={(value) => handleReturnQuantityChange(index, value || 0)}
-                                        min={0}
-                                        max={record.maxReturnableQuantity}
-                                        style={{ width: '100%' }}
-                                    />
-                                ),
-                            },
-                            {
-                                title: 'Unit Price',
-                                key: 'unitPrice',
-                                render: (_, record) => (
-                                    <Text>₹{record.unitPrice.toFixed(2)}</Text>
-                                ),
-                            },
-                            {
-                                title: 'Total Price',
-                                key: 'totalPrice',
-                                render: (_, record) => (
-                                    <Text strong>₹{record.totalPrice.toFixed(2)}</Text>
-                                ),
-                            },
-                            {
-                                title: 'Return Reason',
-                                key: 'returnReason',
-                                render: (_, record, index) => (
-                                    <Input
-                                        value={record.returnReason}
-                                        onChange={(e) => handleReturnReasonChange(index, e.target.value)}
-                                        placeholder="Reason for return"
-                                    />
-                                ),
-                            },
-                            {
-                                title: 'Notes',
-                                key: 'notes',
-                                render: (_, record, index) => (
-                                    <Input
-                                        value={record.notes}
-                                        onChange={(e) => handleReturnNotesChange(index, e.target.value)}
-                                        placeholder="Item notes"
-                                    />
-                                ),
-                            },
-                        ]}
-                        pagination={false}
-                        rowKey={(record, index) => index?.toString() || '0'}
-                        size="small"
-                    />
-
-                    <div className="flex justify-end space-x-2 mt-4">
-                        <Button
-                            onClick={() => {
-                                setIsReturnModalVisible(false);
-                                returnForm.resetFields();
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={processingReturn}
-                        >
-                            Process Return
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                returnItems={returnItems}
+                loading={processingReturn}
+                onCancel={() => setIsReturnModalVisible(false)}
+                onSubmit={handleReturnSubmit}
+                onQuantityChange={handleReturnQuantityChange}
+                onReasonChange={handleReturnReasonChange}
+                onNotesChange={handleReturnNotesChange}
+            />
         </div >
     );
 };

@@ -11,10 +11,6 @@ import {
     Popconfirm,
     Row,
     Col,
-    Modal,
-    Form,
-    Switch,
-    Upload,
 } from 'antd';
 import {
     PlusOutlined,
@@ -22,14 +18,11 @@ import {
     EditOutlined,
     DeleteOutlined,
     ExclamationCircleOutlined,
-    UploadOutlined,
-    DeleteOutlined as DeleteIcon,
 } from '@ant-design/icons';
 import { productBrandService } from '../../services';
 import type { ProductBrand } from '../../types';
-import { uploadService } from '../../services/uploadService';
-import { ImageType } from '../../types';
 import ImageWithFallback from '../../components/Common/ImageWithFallback';
+import { ProductBrandModal } from '../../components/ProductBrands';
 
 const { Title } = Typography;
 
@@ -42,9 +35,6 @@ const ProductBrands: React.FC = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingProductBrand, setEditingProductBrand] = useState<ProductBrand | null>(null);
     const [modalLoading, setModalLoading] = useState(false);
-    const [form] = Form.useForm();
-    const [logoUrl, setLogoUrl] = useState<string>('');
-    const [uploading, setUploading] = useState(false);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -88,39 +78,12 @@ const ProductBrands: React.FC = () => {
 
     const handleAddProductBrand = () => {
         setEditingProductBrand(null);
-        setLogoUrl('');
-        form.resetFields();
         setModalVisible(true);
     };
 
     const handleEditProductBrand = (productBrand: ProductBrand) => {
         setEditingProductBrand(productBrand);
-        setLogoUrl(productBrand.logo || '');
-        form.setFieldsValue({
-            name: productBrand.name,
-            logo: productBrand.logo,
-            isActive: productBrand.isActive,
-        });
         setModalVisible(true);
-    };
-
-    const handleLogoUpload = async (file: File) => {
-        try {
-            setUploading(true);
-            const uploadedImage = await uploadService.uploadSingle(file, ImageType.PRODUCT_BRAND);
-            setLogoUrl(uploadedImage.url);
-            form.setFieldsValue({ logo: uploadedImage.url });
-            message.success('Logo uploaded successfully');
-        } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Logo upload failed');
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    const removeLogo = () => {
-        setLogoUrl('');
-        form.setFieldsValue({ logo: '' });
     };
 
     const handleModalSubmit = async (values: any) => {
@@ -128,7 +91,7 @@ const ProductBrands: React.FC = () => {
             setModalLoading(true);
             const productBrandData = {
                 name: values.name,
-                logo: logoUrl || values.logo,
+                logo: values.logo,
                 isActive: values.isActive,
             };
 
@@ -152,8 +115,6 @@ const ProductBrands: React.FC = () => {
     const handleModalCancel = () => {
         setModalVisible(false);
         setEditingProductBrand(null);
-        setLogoUrl('');
-        form.resetFields();
     };
 
     // Filter product brands based on search
@@ -323,118 +284,13 @@ const ProductBrands: React.FC = () => {
             </div>
 
             {/* Add/Edit Product Brand Modal */}
-            <Modal
-                title={editingProductBrand ? 'Edit Product Brand' : 'Add New Product Brand'}
+            <ProductBrandModal
                 open={modalVisible}
                 onCancel={handleModalCancel}
-                footer={null}
-                width={600}
-                destroyOnHidden
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleModalSubmit}
-                >
-                    <Form.Item
-                        name="name"
-                        label="Brand Name"
-                        rules={[
-                            { required: true, message: 'Please enter brand name' },
-                            { min: 2, message: 'Name must be at least 2 characters' },
-                            { max: 100, message: 'Name cannot exceed 100 characters' }
-                        ]}
-                    >
-                        <Input placeholder="Enter brand name" />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="logo"
-                        label="Logo"
-                    >
-                        <div className="space-y-4">
-                            {logoUrl && (
-                                <div className="flex items-center space-x-4">
-                                    <ImageWithFallback
-                                        src={logoUrl}
-                                        alt="Logo"
-                                        size="medium"
-                                        variant="logo"
-                                        width={80}
-                                        height={80}
-                                    />
-                                    <Button
-                                        type="text"
-                                        icon={<DeleteIcon />}
-                                        danger
-                                        onClick={removeLogo}
-                                        title="Remove Logo"
-                                    >
-                                        Remove
-                                    </Button>
-                                </div>
-                            )}
-                            <Upload
-                                name="logo"
-                                multiple={false}
-                                accept="image/*"
-                                beforeUpload={async (file: File) => {
-                                    const isImage = file.type.startsWith('image/');
-                                    if (!isImage) {
-                                        message.error('You can only upload image files!');
-                                        return false;
-                                    }
-                                    const isLt5M = file.size / 1024 / 1024 < 5;
-                                    if (!isLt5M) {
-                                        message.error('Image must be smaller than 5MB!');
-                                        return false;
-                                    }
-
-                                    await handleLogoUpload(file);
-                                    return false;
-                                }}
-                                showUploadList={false}
-                            >
-                                <Button
-                                    icon={<UploadOutlined />}
-                                    loading={uploading}
-                                >
-                                    {uploading ? 'Uploading...' : 'Upload Logo'}
-                                </Button>
-                            </Upload>
-                            <div className="text-sm text-gray-500">
-                                Upload a square image (recommended: 150x150px, max 5MB)
-                            </div>
-                        </div>
-                    </Form.Item>
-
-                    <Form.Item
-                        name="isActive"
-                        label="Status"
-                        valuePropName="checked"
-                        initialValue={true}
-                    >
-                        <Switch
-                            checkedChildren="Active"
-                            unCheckedChildren="Inactive"
-                        />
-                    </Form.Item>
-
-                    {/* Form Actions */}
-                    <div className="flex justify-end space-x-4 pt-6 border-t">
-                        <Button onClick={handleModalCancel} disabled={modalLoading}>
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={modalLoading}
-                        >
-                            {editingProductBrand ? 'Update Product Brand' : 'Create Product Brand'}
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                loading={modalLoading}
+                editingProductBrand={editingProductBrand}
+                onSubmit={handleModalSubmit}
+            />
         </div>
     );
 };

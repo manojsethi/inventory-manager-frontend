@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Table,
     Button,
@@ -9,16 +9,9 @@ import {
     Typography,
     Popconfirm,
     message,
-
     Tooltip,
-    Modal,
-    Form,
-    Row,
-    Col,
-
     Badge,
     Avatar,
-
 } from 'antd';
 import {
     PlusOutlined,
@@ -27,30 +20,15 @@ import {
     DeleteOutlined,
     UserOutlined,
     PhoneOutlined,
-    MailOutlined,
     EnvironmentOutlined,
-    EyeOutlined,
     ReloadOutlined,
 } from '@ant-design/icons';
 import { customerService } from '../../services/customerService';
-import type { Customer, CreateCustomerRequest, UpdateCustomerRequest } from '../../types/customer';
-import PhoneInputField, { getPhoneInputValidationRules } from '../../components/Common/PhoneInputField';
+import type { Customer } from '../../types/customer';
+import AddCustomerModal from '../../components/Common/AddCustomerModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-interface CustomerFormData {
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-    country?: string;
-    notes?: string;
-    isActive: boolean;
-}
 
 const Customers: React.FC = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -67,13 +45,9 @@ const Customers: React.FC = () => {
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-    const [modalLoading, setModalLoading] = useState(false);
-
-    // Form
-    const [form] = Form.useForm();
 
     // Load customers
-    const loadCustomers = async (page = 1, pageSize = 10) => {
+    const loadCustomers = useCallback(async (page = 1, pageSize = 10) => {
         try {
             setLoading(true);
             const params = {
@@ -95,11 +69,11 @@ const Customers: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchText, statusFilter]);
 
     useEffect(() => {
         loadCustomers();
-    }, [searchText, statusFilter]);
+    }, [loadCustomers]);
 
     // Handle search
     const handleSearch = (value: string) => {
@@ -118,54 +92,9 @@ const Customers: React.FC = () => {
         loadCustomers(pagination.current, pagination.pageSize);
     };
 
-    // Add customer
-    const handleAddCustomer = async (values: CustomerFormData) => {
-        try {
-            setModalLoading(true);
-            const customerData: CreateCustomerRequest = {
-                name: values.name,
-                email: values.email,
-                phone: values.phone,
-                address: values.address,
-            };
-
-            await customerService.create(customerData);
-            message.success('Customer added successfully');
-            setIsAddModalVisible(false);
-            form.resetFields();
-            loadCustomers();
-        } catch (error: any) {
-            message.error(error.response?.data?.error || 'Failed to add customer');
-        } finally {
-            setModalLoading(false);
-        }
-    };
-
-    // Edit customer
-    const handleEditCustomer = async (values: CustomerFormData) => {
-        if (!editingCustomer) return;
-
-        try {
-            setModalLoading(true);
-            const customerData: UpdateCustomerRequest = {
-                name: values.name,
-                email: values.email,
-                phone: values.phone,
-                address: values.address,
-                isActive: values.isActive,
-            };
-
-            await customerService.update(editingCustomer._id, customerData);
-            message.success('Customer updated successfully');
-            setIsEditModalVisible(false);
-            setEditingCustomer(null);
-            form.resetFields();
-            loadCustomers();
-        } catch (error: any) {
-            message.error(error.response?.data?.error || 'Failed to update customer');
-        } finally {
-            setModalLoading(false);
-        }
+    // Handle customer added/updated from modal
+    const handleCustomerAdded = (customer: Customer) => {
+        loadCustomers();
     };
 
     // Delete customer
@@ -182,13 +111,6 @@ const Customers: React.FC = () => {
     // Open edit modal
     const openEditModal = (customer: Customer) => {
         setEditingCustomer(customer);
-        form.setFieldsValue({
-            name: customer.name,
-            email: customer.email,
-            phone: customer.phone,
-            address: customer.address,
-            isActive: customer.isActive,
-        });
         setIsEditModalVisible(true);
     };
 
@@ -349,225 +271,26 @@ const Customers: React.FC = () => {
             </div>
 
             {/* Add Customer Modal */}
-            <Modal
-                title="Add New Customer"
+            <AddCustomerModal
                 open={isAddModalVisible}
-                onCancel={() => {
-                    setIsAddModalVisible(false);
-                    form.resetFields();
-                }}
-                footer={null}
-                width={600}
-                destroyOnHidden
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleAddCustomer}
-                    initialValues={{ isActive: true }}
-                >
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="name"
-                                label="Customer Name"
-                                rules={[
-                                    { required: true, message: 'Please enter customer name' },
-                                    { min: 2, message: 'Name must be at least 2 characters' },
-                                ]}
-                            >
-                                <Input placeholder="Enter customer name" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="phone"
-                                label="Phone Number"
-                                rules={getPhoneInputValidationRules()}
-                            >
-                                <PhoneInputField
-                                    placeholder="Enter phone number"
-                                    onChange={(value) => {
-                                        form.setFieldsValue({ phone: value });
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="email"
-                                label="Email"
-                                rules={[
-                                    { type: 'email', message: 'Please enter a valid email' },
-                                ]}
-                            >
-                                <Input placeholder="Enter email address" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="isActive"
-                                label="Status"
-                                valuePropName="checked"
-                            >
-                                <Select>
-                                    <Option value={true}>Active</Option>
-                                    <Option value={false}>Inactive</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Form.Item
-                        name="address"
-                        label="Address"
-                    >
-                        <Input.TextArea
-                            rows={3}
-                            placeholder="Enter address"
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="notes"
-                        label="Notes"
-                    >
-                        <Input.TextArea
-                            rows={2}
-                            placeholder="Enter any additional notes"
-                        />
-                    </Form.Item>
-
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => {
-                                setIsAddModalVisible(false);
-                                form.resetFields();
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={modalLoading}
-                        >
-                            Add Customer
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                onCancel={() => setIsAddModalVisible(false)}
+                onCustomerAdded={handleCustomerAdded}
+                showOptionalFields={true}
+                title="Add New Customer"
+            />
 
             {/* Edit Customer Modal */}
-            <Modal
-                title="Edit Customer"
+            <AddCustomerModal
                 open={isEditModalVisible}
                 onCancel={() => {
                     setIsEditModalVisible(false);
                     setEditingCustomer(null);
-                    form.resetFields();
                 }}
-                footer={null}
-                width={600}
-                destroyOnHidden
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleEditCustomer}
-                >
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="name"
-                                label="Customer Name"
-                                rules={[
-                                    { required: true, message: 'Please enter customer name' },
-                                    { min: 2, message: 'Name must be at least 2 characters' },
-                                ]}
-                            >
-                                <Input placeholder="Enter customer name" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="phone"
-                                label="Phone Number"
-                                rules={getPhoneInputValidationRules()}
-                            >
-                                <PhoneInputField />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="email"
-                                label="Email"
-                                rules={[
-                                    { type: 'email', message: 'Please enter a valid email' },
-                                ]}
-                            >
-                                <Input placeholder="Enter email address" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="isActive"
-                                label="Status"
-                            >
-                                <Select>
-                                    <Option value={true}>Active</Option>
-                                    <Option value={false}>Inactive</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Form.Item
-                        name="address"
-                        label="Address"
-                    >
-                        <Input.TextArea
-                            rows={3}
-                            placeholder="Enter address"
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="notes"
-                        label="Notes"
-                    >
-                        <Input.TextArea
-                            rows={2}
-                            placeholder="Enter any additional notes"
-                        />
-                    </Form.Item>
-
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            onClick={() => {
-                                setIsEditModalVisible(false);
-                                setEditingCustomer(null);
-                                form.resetFields();
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={modalLoading}
-                        >
-                            Update Customer
-                        </Button>
-                    </div>
-                </Form>
-            </Modal>
+                onCustomerAdded={handleCustomerAdded}
+                editingCustomer={editingCustomer}
+                showOptionalFields={true}
+                title="Edit Customer"
+            />
         </div>
     );
 };
