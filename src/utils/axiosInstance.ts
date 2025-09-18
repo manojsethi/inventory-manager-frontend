@@ -1,9 +1,13 @@
 import { message } from 'antd';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
-// Configure axios defaults
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-axios.defaults.withCredentials = true; // Enable sending cookies with requests
+// Create a custom axios instance with interceptors
+const axiosInstance: AxiosInstance = axios.create({
+    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
+    withCredentials: true, // Enable sending cookies with requests
+});
+
+
 
 // Type for logout function
 export type LogoutFunction = () => void;
@@ -14,7 +18,7 @@ let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 // Request interceptor to ensure credentials are sent
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
     (config) => {
         // Ensure credentials are sent with every request
         config.withCredentials = true;
@@ -26,13 +30,12 @@ axios.interceptors.request.use(
 );
 
 // Response interceptor to handle token refresh and errors
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
         return response;
     },
     async (error: AxiosError) => {
         const originalRequest = error.config as any;
-
         // Handle 401 Unauthorized errors
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
@@ -42,7 +45,7 @@ axios.interceptors.response.use(
                 try {
                     const success = await refreshPromise;
                     if (success) {
-                        return axios(originalRequest);
+                        return axiosInstance(originalRequest);
                     }
                 } catch (refreshError) {
                     console.error('Token refresh failed:', refreshError);
@@ -54,7 +57,7 @@ axios.interceptors.response.use(
                     refreshPromise = performTokenRefresh();
                     const success = await refreshPromise;
                     if (success) {
-                        return axios(originalRequest);
+                        return axiosInstance(originalRequest);
                     }
                 } catch (refreshError) {
                     console.error('Token refresh failed:', refreshError);
@@ -93,7 +96,9 @@ axios.interceptors.response.use(
 // Internal function to perform token refresh
 const performTokenRefresh = async (): Promise<boolean> => {
     try {
-        await axios.post('/api/auth/refresh');
+        await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/auth/refresh`, {}, {
+            withCredentials: true,
+        });
         // If refresh is successful, the response should contain user data
         // but we don't need to update the user state here as it will be handled by the calling component
         return true;
@@ -115,5 +120,5 @@ export const clearCallbacks = () => {
     refreshPromise = null;
 };
 
-// Export the configured axios instance
-export default axios; 
+// Export the custom axios instance (with interceptors)
+export { axiosInstance };

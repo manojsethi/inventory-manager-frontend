@@ -1,7 +1,7 @@
 import { ATTRIBUTE_FIELD_TYPES, AttributeFieldType } from '../constants/attributeConfigs';
 
-export { default as axios, clearCallbacks, setLogoutCallback } from './axios';
-export type { LogoutFunction } from './axios';
+export { axiosInstance as axios, clearCallbacks, setLogoutCallback } from './axiosInstance';
+export type { LogoutFunction } from './axiosInstance';
 
 /**
  * Generate available attributes from ATTRIBUTE_FIELD_TYPES

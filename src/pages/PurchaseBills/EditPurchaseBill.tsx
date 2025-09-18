@@ -227,7 +227,6 @@ const EditPurchaseBill: React.FC = () => {
 
     const handleAttachmentUpload = async (file: File) => {
         try {
-            debugger;
             const uploadedImage = await uploadService.uploadSingle(file, ImageType.PURCHASE_BILL);
             setAttachments([...attachments, uploadedImage.url]);
             return false; // Prevent default upload behavior
@@ -259,7 +258,6 @@ const EditPurchaseBill: React.FC = () => {
                 })),
                 images: attachments,
             };
-            debugger;
             await purchaseBillService.update(id!, formData);
             message.success('Purchase bill updated successfully');
             navigate('/purchase-bills');

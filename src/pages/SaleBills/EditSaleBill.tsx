@@ -350,7 +350,6 @@ const EditSaleBill: React.FC = () => {
 
         try {
             setLoading(true);
-            debugger;
             const saleBillData: UpdateSaleBillRequest = {
                 customer: selectedCustomer._id,
                 billDate: values.billDate.toDate(),

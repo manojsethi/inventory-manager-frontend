@@ -77,6 +77,7 @@ const ProductTypeCategoryModal: React.FC<ProductTypeCategoryModalProps> = ({
             logo: logoUrl || values.logo,
         };
         await onSubmit(categoryData);
+        form.resetFields();
     };
 
     const handleCancel = () => {
