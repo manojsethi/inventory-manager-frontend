@@ -1,5 +1,5 @@
 // API Base URL
-export const API_BASE_URL = process.env.INVENTORY_APP_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = process.env.REACT_APP_INVENTORY_APP_API_URL || 'http://localhost:8000';
 
 // All API endpoints organized under a common object
 export const API_ENDPOINTS = {

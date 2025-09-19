@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
 // Create a custom axios instance with interceptors
 const axiosInstance: AxiosInstance = axios.create({
-    baseURL: process.env.INVENTORY_APP_API_URL || 'http://localhost:8000',
+    baseURL: process.env.REACT_APP_INVENTORY_APP_API_URL || 'http://localhost:8000',
     withCredentials: true, // Enable sending cookies with requests
 });
 
@@ -96,7 +96,7 @@ axiosInstance.interceptors.response.use(
 // Internal function to perform token refresh
 const performTokenRefresh = async (): Promise<boolean> => {
     try {
-        await axios.post(`${process.env.INVENTORY_APP_API_URL || 'http://localhost:8000'}/api/auth/refresh`, {}, {
+        await axios.post(`${process.env.REACT_APP_INVENTORY_APP_API_URL || 'http://localhost:8000'}/api/auth/refresh`, {}, {
             withCredentials: true,
         });
         // If refresh is successful, the response should contain user data
